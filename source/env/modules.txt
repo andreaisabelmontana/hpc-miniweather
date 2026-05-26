@@ -1,0 +1,38 @@
+# MiniWeather HPC Project - Module Environment
+# Magic Castle Cluster (Alliance/EESSI)
+# Last updated: 2024-12-06
+
+# ==============================================
+# CPU Build (MPI + OpenMP)
+# ==============================================
+module purge --force
+module load gcc/12.3
+module load openmpi/4.1.5
+module load cmake/3.27
+
+# Compiler flags used:
+# -O3 -march=native -fopenmp
+
+# ==============================================
+# GPU Build (CUDA)
+# ==============================================
+# module purge --force
+# module load gcc/12.3
+# module load cuda/12.2
+# module load openmpi/4.1.5
+# module load cmake/3.27
+
+# ==============================================
+# GPU Build (HIP/ROCm)
+# ==============================================
+# module purge --force
+# module load rocm/5.7.0
+# module load openmpi/4.1.5
+# module load cmake/3.27
+
+# ==============================================
+# Profiling Tools
+# ==============================================
+# module load likwid           # CPU profiling
+# module load nvhpc            # Nsight Systems/Compute (GPU)
+# module load vtune            # Intel VTune (if available)

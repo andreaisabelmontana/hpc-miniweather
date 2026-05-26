@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b3d2e" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <title>HPC MiniWeather · Interactive Visualization</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container row">
+        <div class="brand">
+          <span class="mark" aria-hidden="true">
+            <!-- isobaric / weather-y mark -->
+            <svg viewBox="0 0 32 32" width="22" height="22">
+              <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M5 12 Q12 8 19 12 T 28 12" />
+                <path d="M3 18 Q12 14 21 18 T 30 18" />
+                <path d="M5 24 Q14 20 23 24 T 30 24" />
+              </g>
+            </svg>
+          </span>
+          <span class="wordmark">
+            <span>HPC MiniWeather</span>
+            <small>3D 7-point stencil · live visualization</small>
+          </span>
+        </div>
+        <nav class="nav">
+          <a href="#sim">Simulation</a>
+          <a href="#outputs">Cluster outputs</a>
+          <a href="#perf">Performance</a>
+          <a href="https://github.com/andreaisabelmontana/hpc-miniweather" target="_blank" rel="noreferrer">Source ↗</a>
+        </nav>
+      </div>
+      <div class="stripe" aria-hidden="true"></div>
+    </header>
+
+    <section class="hero">
+      <div class="container">
+        <span class="eyebrow">IE BCSAI · High-Performance Computing</span>
+        <h1>Watching a <span class="accent">stencil</span> compute the weather.</h1>
+        <p class="lede">
+          A 3D, 7-point stencil mini-weather solver, designed to run on HPC clusters with MPI + OpenMP + CUDA.
+          This page lets you see what that algorithm actually <em>does</em>: a 2D port runs live in your browser,
+          alongside the real outputs produced by the cluster runs.
+        </p>
+        <div class="hero-actions">
+          <a href="#sim" class="btn btn-primary">Run the simulation</a>
+          <a href="#outputs" class="btn btn-secondary">See cluster outputs</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== INTERACTIVE SIM ===== -->
+    <section id="sim" class="section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Live</span>
+            <h2>Interactive 2D stencil</h2>
+            <p class="muted" style="max-width: 62ch">
+              The cluster code applies a 7-point stencil on a 3D grid. The same kernel logic runs here on a
+              2D slice — every frame, each cell is replaced by a weighted average of its neighbors plus a
+              small diffusion term. Heat sources, sinks and an optional wind keep the field interesting.
+            </p>
+          </div>
+        </div>
+
+        <div class="sim-layout">
+          <div class="sim-canvas-wrap">
+            <canvas id="sim" width="640" height="480" aria-label="Live stencil simulation"></canvas>
+            <div class="sim-overlay">
+              <div class="sim-stat"><span class="lbl">step</span><span id="stat-step" class="mono">0</span></div>
+              <div class="sim-stat"><span class="lbl">cells / s</span><span id="stat-rate" class="mono">—</span></div>
+              <div class="sim-stat"><span class="lbl">fps</span><span id="stat-fps" class="mono">—</span></div>
+            </div>
+            <div class="colorbar" aria-hidden="true">
+              <span>cold</span>
+              <div class="cb"></div>
+              <span>hot</span>
+            </div>
+          </div>
+
+          <aside class="sim-controls">
+            <div class="ctrl-block">
+              <label>Initial condition</label>
+              <div class="seg" id="preset-seg">
+                <button data-preset="thermal"  class="active">Rising thermal</button>
+                <button data-preset="collision">Two thermals</button>
+                <button data-preset="wave">Wave</button>
+                <button data-preset="sphere">Hot blob</button>
+                <button data-preset="vortex">Vortex</button>
+              </div>
+            </div>
+
+            <div class="ctrl-block">
+              <label>Diffusion <span class="val mono" id="val-diff">0.20</span></label>
+              <input id="ctrl-diff" type="range" min="0" max="0.5" step="0.01" value="0.20" />
+            </div>
+
+            <div class="ctrl-block">
+              <label>Buoyancy <span class="val mono" id="val-buoy">0.10</span></label>
+              <input id="ctrl-buoy" type="range" min="0" max="0.5" step="0.01" value="0.10" />
+            </div>
+
+            <div class="ctrl-block">
+              <label>Wind (horizontal) <span class="val mono" id="val-wind">0.00</span></label>
+              <input id="ctrl-wind" type="range" min="-1" max="1" step="0.05" value="0.00" />
+            </div>
+
+            <div class="ctrl-block">
+              <label>Resolution <span class="val mono" id="val-res">128 × 96</span></label>
+              <input id="ctrl-res" type="range" min="48" max="256" step="16" value="128" />
+              <small class="muted">Higher = sharper, but more cells per step.</small>
+            </div>
+
+            <div class="ctrl-row">
+              <button id="btn-play"  class="btn btn-primary">⏸ Pause</button>
+              <button id="btn-step"  class="btn btn-secondary">▶ Step</button>
+              <button id="btn-reset" class="btn btn-secondary">↺ Reset</button>
+            </div>
+
+            <details class="explainer">
+              <summary>What does the stencil do?</summary>
+              <p>
+                Each timestep computes
+                <code class="mono">u'<sub>i,j</sub> = (1−6α)·u<sub>i,j</sub> + α·(u<sub>i±1,j</sub> + u<sub>i,j±1</sub> + u<sub>i,j±0</sub>)</code>
+                — the discrete heat equation as a finite-difference stencil. In the cluster code there's a
+                third axis, so the kernel touches 7 cells (centre + 6 neighbours). Buoyancy adds an upward
+                pull on hot cells; wind adds horizontal advection.
+              </p>
+              <p>
+                On an HPC cluster the same operation is partitioned across ranks (MPI), each rank threads
+                across cores (OpenMP), and each step exchanges thin "halo" layers between neighbours.
+                <a href="./source-overview.html">See the actual source files →</a>
+              </p>
+            </details>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== EXISTING CLUSTER OUTPUTS ===== -->
+    <section id="outputs" class="section section-muted">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">From the cluster</span>
+            <h2>Real outputs from real runs</h2>
+            <p class="muted" style="max-width: 62ch">
+              These images are produced by the C++ code running on the Magic Castle cluster — checked in
+              under <code>source/results/</code> and rendered as-is here. The browser simulation above is a
+              live 2D analogue; the images below are the genuine 3D solver output.
+            </p>
+          </div>
+        </div>
+
+        <div class="cards">
+          <article class="card">
+            <h3>Animation</h3>
+            <p class="muted">Time evolution of the field, exported as an animated GIF from the 3D run.</p>
+            <img src="./assets/viz_animation/evolution.gif" alt="Animated GIF showing time evolution of the 3D stencil field" loading="lazy" />
+          </article>
+          <article class="card">
+            <h3>Wave preset</h3>
+            <p class="muted">Plane-wave initial condition, 2D slices through the volume.</p>
+            <img src="./assets/viz_wave/slices_2d.png" alt="2D slices of the wave preset" loading="lazy" />
+            <img src="./assets/viz_wave/isosurface_3d.png" alt="3D isosurface of the wave preset" loading="lazy" />
+          </article>
+          <article class="card">
+            <h3>Sphere preset</h3>
+            <p class="muted">Spherical Gaussian, diffused outward by the 7-point operator.</p>
+            <img src="./assets/viz_sphere/slices_2d.png" alt="2D slices of the sphere preset" loading="lazy" />
+            <img src="./assets/viz_sphere/isosurface_3d.png" alt="3D isosurface of the sphere preset" loading="lazy" />
+          </article>
+          <article class="card">
+            <h3>Default</h3>
+            <p class="muted">Default initial state from the default scenario.</p>
+            <img src="./assets/viz/slices_2d.png" alt="2D slices of the default scenario" loading="lazy" />
+            <img src="./assets/viz/isosurface_3d.png" alt="3D isosurface of the default scenario" loading="lazy" />
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PERF / CONTEXT ===== -->
+    <section id="perf" class="section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Why this matters</span>
+            <h2>The four backends</h2>
+            <p class="muted" style="max-width: 62ch">
+              The same stencil is implemented four ways. Each one is one of the source files committed in
+              <code>source/src/</code>. The point of the project is to see how much faster the same physics
+              gets as you move from a textbook implementation to one that uses every resource on a node.
+            </p>
+          </div>
+        </div>
+
+        <div class="backends">
+          <div class="backend">
+            <span class="dot" style="background:#9CA3AF"></span>
+            <strong>Serial</strong>
+            <p class="muted">Single thread, straight triple loop. Baseline — every other variant is measured against this.</p>
+            <code class="mono">src/stencil_cpu_serial.cpp</code>
+          </div>
+          <div class="backend">
+            <span class="dot" style="background:#06B6D4"></span>
+            <strong>Cache-blocked</strong>
+            <p class="muted">Same algorithm, but loops are tiled so each block fits in L2/L1. Same FLOPs, fewer cache misses.</p>
+            <code class="mono">src/stencil_cpu_blocked.cpp</code>
+          </div>
+          <div class="backend">
+            <span class="dot" style="background:#F59E0B"></span>
+            <strong>CPU parallel (OpenMP / MPI)</strong>
+            <p class="muted">Threads across cores, ranks across nodes; halo exchange keeps the stencil consistent at boundaries.</p>
+            <code class="mono">src/stencil_cpu_parallel.cpp · halo.cpp</code>
+          </div>
+          <div class="backend">
+            <span class="dot" style="background:#10B981"></span>
+            <strong>GPU (CUDA)</strong>
+            <p class="muted">Same operator, but each cell becomes one CUDA thread. Coalesced loads + shared-memory tiling.</p>
+            <code class="mono">src/stencil_gpu.cpp · stencil_gpu.cu</code>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <div class="stripe" aria-hidden="true"></div>
+      <div class="container">
+        <div class="row" style="align-items:flex-start; gap:2rem; flex-wrap:wrap; padding:2.5rem 0 1.5rem">
+          <div style="flex:1; min-width:240px">
+            <strong>HPC MiniWeather — visualization</strong>
+            <p class="muted" style="margin-top:0.5rem">
+              Visualization layer by Andrea Montana for the IE BCSAI HPC course.
+              Underlying C++ solver and cluster outputs by the team
+              (<a href="https://github.com/Geethika2506/HPC_MiniWeather_Project" target="_blank" rel="noreferrer">Geethika</a>,
+              forked from
+              <a href="https://github.com/Khawwash/HPC_MiniWeather_Project" target="_blank" rel="noreferrer">Khawwash</a>).
+            </p>
+          </div>
+          <div style="flex:1; min-width:200px">
+            <strong>Project</strong>
+            <ul style="list-style:none; padding:0; margin:0.5rem 0 0">
+              <li><a href="https://github.com/andreaisabelmontana/hpc-miniweather" target="_blank" rel="noreferrer">This repository</a></li>
+              <li><a href="https://github.com/andreaisabelmontana/hpc-miniweather/tree/main/source" target="_blank" rel="noreferrer">Source code (mirror)</a></li>
+              <li><a href="https://github.com/Geethika2506/HPC_MiniWeather_Project" target="_blank" rel="noreferrer">Upstream (Geethika)</a></li>
+            </ul>
+          </div>
+          <div style="flex:1; min-width:200px">
+            <strong>Stack</strong>
+            <ul style="list-style:none; padding:0; margin:0.5rem 0 0; color:var(--muted)">
+              <li>C++ · CMake · MPI · OpenMP · CUDA</li>
+              <li>SLURM / Magic Castle cluster</li>
+              <li>Vanilla HTML + JS + Canvas (this page)</li>
+            </ul>
+          </div>
+        </div>
+        <div class="legal">
+          © <span id="yr"></span> IE School of Science &amp; Technology — Class project
+        </div>
+      </div>
+    </footer>
+
+    <script type="module" src="./src/sim.js"></script>
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,47 @@
+name: Build & deploy to GitHub Pages
+
+# Static site: just upload the contents of web/ as the Pages artefact.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'web/**'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy 404.html alongside index.html
+        # GitHub Pages serves 404.html on unknown paths. For a single-page
+        # static site, mirroring index.html means any URL still loads the app.
+        run: |
+          if [ -f web/index.html ] && [ ! -f web/404.html ]; then
+            cp web/index.html web/404.html
+          fi
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

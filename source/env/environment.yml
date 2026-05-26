@@ -1,0 +1,21 @@
+# Conda environment for MiniWeather analysis and plotting
+# Usage: conda env create -f environment.yml
+#        conda activate miniweather
+
+name: miniweather
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python=3.10
+  - numpy>=1.24
+  - pandas>=2.0
+  - matplotlib>=3.7
+  - seaborn>=0.12
+  - scipy>=1.10
+  - jupyter
+  - jupyterlab
+  - pip
+  - pip:
+    - tabulate

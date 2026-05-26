@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b3d2e" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <title>Source overview · HPC MiniWeather</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container row">
+        <a href="./" class="brand" style="border:none">
+          <span class="mark"><svg viewBox="0 0 32 32" width="22" height="22"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12 Q12 8 19 12 T 28 12"/><path d="M3 18 Q12 14 21 18 T 30 18"/><path d="M5 24 Q14 20 23 24 T 30 24"/></g></svg></span>
+          <span class="wordmark"><span>HPC MiniWeather</span><small>Source overview</small></span>
+        </a>
+        <nav class="nav"><a href="./">Back to sim</a></nav>
+      </div>
+      <div class="stripe"></div>
+    </header>
+
+    <section class="section">
+      <div class="container" style="max-width: 880px">
+        <span class="eyebrow" style="color: var(--brand); font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; font-size: 0.72rem">What's in source/</span>
+        <h1>Source code overview</h1>
+        <p class="muted">
+          The <a href="https://github.com/andreaisabelmontana/hpc-miniweather/tree/main/source" target="_blank" rel="noreferrer"><code>source/</code></a>
+          folder of this repo is a mirror of the team's HPC MiniWeather Project. Below is what every directory contains and how it
+          maps to the visualization you see on the home page.
+        </p>
+
+        <h2>The 7-point stencil, four ways</h2>
+        <p>
+          All four implementations compute the same kernel — a 3D 7-point Laplacian-style stencil over a (nx × ny × nz) grid.
+          They differ in <em>how</em> the work is scheduled across hardware:
+        </p>
+        <ul>
+          <li><code class="mono">src/stencil_cpu_serial.cpp</code> — single thread, plain triple loop. Reference correctness; everything else is benchmarked against this.</li>
+          <li><code class="mono">src/stencil_cpu_blocked.cpp</code> — same math, but the loops are tiled into <em>blocks</em> sized to fit in L1/L2. Same FLOPs, far fewer cache misses.</li>
+          <li><code class="mono">src/stencil_cpu_parallel.cpp</code> + <code class="mono">src/halo.cpp</code> — OpenMP threads over the inner loops; when MPI is enabled, multiple ranks each own a sub-block of the grid and exchange halo (ghost) cells every step.</li>
+          <li><code class="mono">src/stencil_gpu.cu</code> + <code class="mono">src/stencil_gpu.cpp</code> — same kernel as a CUDA grid. Each cell is one thread; tiled into shared memory for coalesced loads.</li>
+        </ul>
+
+        <h2>Other folders</h2>
+        <ul>
+          <li><code class="mono">include/</code> — public headers (<code>stencil.hpp</code>, <code>halo.hpp</code>, <code>config.hpp</code>, …).</li>
+          <li><code class="mono">slurm/</code>, <code class="mono">submit.sbatch</code>, <code class="mono">submit_*.slurm</code> — SLURM batch scripts for the Magic Castle cluster runs (serial, parallel, scaling sweep, GPU).</li>
+          <li><code class="mono">scripts/</code> — Python helpers: <code>visualize_weather.py</code> renders the PNG/GIF artefacts you see in the "Cluster outputs" section; <code>plot_results.py</code> + <code>collect_results.py</code> build the speedup/scaling tables.</li>
+          <li><code class="mono">results/</code> — the artefacts themselves (also mirrored into <code>web/assets/</code> so this Pages site can display them).</li>
+          <li><code class="mono">docs/</code> — the team's writeup: <code>ARCHITECTURE.md</code>, <code>RESULTS.md</code>, <code>SYSTEM.md</code>, the EuroHPC proposal, the pitch slides, and a reproduction guide.</li>
+          <li><code class="mono">tests/</code> — sanity check at 16³ and a Python verifier that compares all four backends against each other to flag correctness regressions.</li>
+          <li><code class="mono">profiling/</code> — instrumentation notes for the cluster runs.</li>
+          <li><code class="mono">CMakeLists.txt</code>, <code class="mono">run.sh</code> — build / configure / run from a single entry point. <code>./run.sh build</code> compiles with whatever toolchain modules the cluster has loaded; <code>./run.sh test</code> launches a smoke run.</li>
+        </ul>
+
+        <h2>How the in-browser sim maps to this</h2>
+        <p>
+          The <a href="./">interactive page</a> runs a 2D analogue of the same operator. Same stencil shape (centre + face-neighbours),
+          same diffusion math, same buoyancy term — just one dimension fewer so the result fits on a canvas. Resolution, diffusion
+          and buoyancy are sliders so you can <em>feel</em> what the cluster code is computing per cell, per step, before it's distributed
+          across thousands of threads.
+        </p>
+
+        <div style="margin-top: 2rem">
+          <a class="btn btn-primary" href="./">← Back to the live simulation</a>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>

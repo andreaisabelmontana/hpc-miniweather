@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        config: [cpu]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential cmake clang-format openmpi-bin libopenmpi-dev
+
+    - name: Configure & build (CPU)
+      run: |
+        mkdir build && cd build
+        cmake .. -DENABLE_CUDA=OFF -DENABLE_HIP=OFF
+        cmake --build . -- -j$(nproc)
+
+    - name: Run clang-format check
+      run: |
+        if command -v clang-format >/dev/null; then
+          git ls-files '*.cpp' '*.hpp' '*.h' | xargs -r clang-format -style=file -output-replacements-xml | grep -q '<replacement ' && (echo 'clang-format issues' && exit 1) || echo 'clang-format OK'
+        else
+          echo 'clang-format not installed; skipping'
+        fi
+
+  static:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install
+      run: sudo apt-get update && sudo apt-get install -y build-essential cmake clang
+    - name: Build with strict warnings
+      run: |
+        mkdir build-warn && cd build-warn
+        cmake .. -DENABLE_CUDA=OFF -DENABLE_HIP=OFF
+        cmake --build . -- -j$(nproc)

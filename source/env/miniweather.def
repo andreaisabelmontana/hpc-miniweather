@@ -1,0 +1,65 @@
+Bootstrap: docker
+From: nvcr.io/nvidia/nvhpc:24.5-devel-cuda12.4-ubuntu22.04
+
+%labels
+    Author MiniWeather HPC Team
+    Version 1.0
+    Description MiniWeather 3D Stencil HPC Application (GPU + CPU)
+
+%post
+    # Update and install dependencies
+    apt-get update && apt-get install -y \
+        build-essential \
+        cmake \
+        git \
+        wget \
+        libopenmpi-dev \
+        openmpi-bin \
+        libomp-dev \
+        python3 \
+        python3-pip \
+        python3-dev \
+        && rm -rf /var/lib/apt/lists/*
+
+    # Install Python packages
+    pip install -U pip wheel
+    pip install numpy matplotlib pandas mpi4py h5py
+
+    # Set compiler environment
+    export CC=gcc
+    export CXX=g++
+
+%environment
+    export LC_ALL=C
+    export PATH=/usr/local/bin:$PATH
+    export OMP_NUM_THREADS=8
+    export PYTHONUNBUFFERED=1
+    export CUDA_HOME=/opt/nvidia/hpc_sdk/Linux_x86_64/24.5/cuda
+
+%runscript
+    echo "MiniWeather HPC Container"
+    echo "Usage: apptainer run miniweather.sif [args]"
+    echo "  or:  apptainer exec miniweather.sif mpirun -np N ./miniweather [args]"
+    exec "$@"
+
+%test
+    echo "Testing MiniWeather container..."
+    which mpirun
+    mpirun --version
+    gcc --version
+    cmake --version
+
+%help
+    MiniWeather 3D Stencil HPC Application Container
+    
+    Build the container:
+        apptainer build miniweather.sif miniweather.def
+    
+    Build the application inside container:
+        apptainer exec miniweather.sif bash -c "cd /path/to/src && cmake -B build && cmake --build build"
+    
+    Run with MPI:
+        apptainer exec miniweather.sif mpirun -np 4 ./build/miniweather --nx 64 --ny 64 --nz 64 --steps 100
+    
+    Run on cluster with Slurm:
+        srun apptainer exec miniweather.sif ./build/miniweather --nx 64 --ny 64 --nz 64 --steps 100
