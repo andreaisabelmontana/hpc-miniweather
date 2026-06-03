@@ -160,6 +160,88 @@
       .biblio .meta { color: var(--muted); font-size: 0.85rem; }
 
       .toc-nav a { font-size: 0.92rem; }
+
+      /* Module learning-outcomes block */
+      .outcomes {
+        background: rgba(11,61,46,0.04);
+        border: 1px solid var(--brand-soft);
+        border-radius: var(--radius-md);
+        padding: 1.1rem 1.3rem 1.1rem 1.4rem;
+        margin: 0 0 1.8rem;
+      }
+      .outcomes h3 {
+        font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+        letter-spacing: 0.12em; color: var(--brand); margin: 0 0 0.6rem;
+      }
+      .outcomes ul { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.4rem; }
+      .outcomes li { font-size: 0.9rem; color: var(--fg-soft); }
+      .outcomes li::marker { color: var(--accent); }
+
+      /* "Key idea" concept note inside a session */
+      .keyidea {
+        background: rgba(245,158,11,0.06);
+        border: 1px solid #f3d9a8;
+        border-left: 4px solid var(--accent-warm);
+        border-radius: var(--radius-sm);
+        padding: 0.6rem 0.85rem; margin-top: 0.75rem;
+        font-size: 0.83rem; color: var(--fg-soft);
+      }
+      .keyidea strong { color: var(--accent-warm); }
+      .keyidea code { background: var(--bg-soft); padding: 0.08em 0.38em; border-radius: 4px; font-size: 0.92em; }
+
+      /* Annotated reading note inside a session */
+      .reading {
+        font-size: 0.8rem; color: var(--muted); margin-top: 0.7rem;
+        padding-top: 0.55rem; border-top: 1px dashed var(--border);
+      }
+      .reading strong { color: var(--fg-soft); font-weight: 700; }
+
+      .session-body p.session-obj + .session-obj { margin-top: -0.3rem; }
+
+      .callout code, .session-obj code { background: var(--bg-soft); padding: 0.08em 0.38em; border-radius: 4px; font-size: 0.92em; }
+
+      /* Glossary grid */
+      .glossary {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1rem;
+        list-style: none; padding: 0; margin: 0;
+      }
+      .glossary li {
+        background: #fff; border: 1px solid var(--border);
+        border-radius: var(--radius-md); padding: 0.95rem 1.1rem;
+        box-shadow: var(--shadow-sm);
+      }
+      .glossary dt {
+        font-weight: 700; color: var(--brand); font-size: 0.95rem; margin-bottom: 0.25rem;
+      }
+      .glossary dd { margin: 0; font-size: 0.85rem; color: var(--muted); }
+
+      /* Bibliography session-mapping line */
+      .biblio .annot { color: var(--fg-soft); font-size: 0.86rem; margin: 0.5rem 0 0; }
+      .biblio .used {
+        display: inline-block; margin-top: 0.5rem;
+        font-family: var(--font-mono); font-size: 0.68rem; font-weight: 600;
+        color: var(--brand); background: rgba(11,61,46,0.06);
+        border: 1px solid var(--brand-soft); padding: 0.2em 0.6em; border-radius: 4px;
+      }
+
+      /* Assessment component cards */
+      .assess-grid {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 1rem; margin-top: 1.5rem;
+      }
+      .assess-card {
+        background: #fff; border: 1px solid var(--border);
+        border-left: 4px solid var(--brand); border-radius: var(--radius-md);
+        padding: 1rem 1.15rem; box-shadow: var(--shadow-sm);
+      }
+      .assess-card .top { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; margin-bottom: 0.4rem; }
+      .assess-card h4 { margin: 0; font-size: 0.98rem; color: var(--fg); }
+      .assess-card .wt { font-family: var(--font-mono); font-weight: 600; color: var(--brand); font-size: 0.9rem; }
+      .assess-card p { margin: 0; font-size: 0.83rem; color: var(--muted); }
+      .assess-card p + p { margin-top: 0.45rem; }
+      .assess-card .lbl { font-weight: 700; color: var(--fg-soft); }
     </style>
   </head>
   <body>
@@ -186,6 +268,7 @@
           <a href="#objectives">Objectives</a>
           <a href="#assessment">Assessment</a>
           <a href="#program">Program</a>
+          <a href="#concepts">Concepts</a>
           <a href="./SYLLABUS.pdf" target="_blank" rel="noreferrer">Syllabus PDF ↗</a>
         </nav>
       </div>
@@ -339,6 +422,48 @@
             </div>
           </div>
         </div>
+
+        <h3 style="color:var(--brand); margin:2.5rem 0 0; font-size:1rem; text-transform:uppercase; letter-spacing:0.08em">What each component asks of you</h3>
+        <div class="assess-grid">
+          <div class="assess-card">
+            <div class="top"><h4>Class participation</h4><span class="wt">10%</span></div>
+            <p><span class="lbl">Deliverable:</span> active, informed contribution to discussions and in-class activities across the semester.</p>
+            <p><span class="lbl">Evaluated on:</span> quality and consistency of engagement; attendance is mandatory and feeds this component.</p>
+          </div>
+          <div class="assess-card">
+            <div class="top"><h4>Individual work</h4><span class="wt">15%</span></div>
+            <p><span class="lbl">Deliverable:</span> one individual assignment per module applying lecture concepts to a real problem or case study.</p>
+            <p><span class="lbl">Evaluated on:</span> correctness, applied understanding and clarity of the solution.</p>
+          </div>
+          <div class="assess-card">
+            <div class="top"><h4>Intermediate tests</h4><span class="wt">15%</span></div>
+            <p><span class="lbl">Deliverable:</span> regular short quizzes plus an intermediate exam checking comprehension of recent lectures.</p>
+            <p><span class="lbl">Evaluated on:</span> progressive mastery; designed to reinforce continuous learning.</p>
+          </div>
+          <div class="assess-card">
+            <div class="top"><h4>Workgroups</h4><span class="wt">15%</span></div>
+            <p><span class="lbl">Deliverable:</span> a group project on a selected HPC topic — a written paper plus an oral presentation (Session&nbsp;30).</p>
+            <p><span class="lbl">Evaluated on:</span> the design, implementation and optimisation of an HPC solution, and the quality of the presentation.</p>
+          </div>
+          <div class="assess-card">
+            <div class="top"><h4>Mid-course exam</h4><span class="wt">15%</span></div>
+            <p><span class="lbl">Deliverable:</span> a written individual exam held mid-semester covering the first half of the course (Modules&nbsp;1–3).</p>
+            <p><span class="lbl">Evaluated on:</span> theoretical understanding of the foundational and parallel-essentials material.</p>
+          </div>
+          <div class="assess-card">
+            <div class="top"><h4>Final exam</h4><span class="wt">30%</span></div>
+            <p><span class="lbl">Deliverable:</span> a comprehensive written exam at the end of the course (Session&nbsp;30) spanning all six modules.</p>
+            <p><span class="lbl">Evaluated on:</span> both theoretical and applied understanding; the single largest component.</p>
+          </div>
+        </div>
+
+        <div class="callout" style="margin-top:1.5rem">
+          <strong>Pass &amp; re-sit rules:</strong> students have four chances across two academic years (ordinary + extraordinary June/July re-sits).
+          Failing the ordinary call leads to a comprehensive June/July re-sit graded <em>on that exam alone</em> (continuous assessment is dropped),
+          with a minimum passing grade of 5 and a maximum of 8.0; the third-call re-take exam can reach 10.0.
+          Students below the <strong>80% attendance</strong> threshold forfeit <em>both</em> calls and must re-enrol the following year.
+          Re-sits require physical presence on campus (Segovia or Madrid); grade appeals require attending the exam review session first.
+        </div>
       </div>
     </section>
 
@@ -367,8 +492,22 @@
           </div>
           <p class="module-intro">
             The groundwork: the evolution, principles and architecture of HPC systems, resource management,
-            performance metrics, cloud-based HPC and a first pass at writing simple parallel codes.
+            performance metrics, cloud-based HPC and a first pass at writing simple parallel codes. This module
+            answers the orienting questions — what makes a machine &ldquo;high performance,&rdquo; how those machines
+            are organised, how their time is shared between many users, and how you log in and run your first
+            parallel job.
           </p>
+
+          <div class="outcomes">
+            <h3>By the end of Module 1 you can</h3>
+            <ul>
+              <li>Explain what distinguishes HPC from ordinary computing and read a supercomputer&rsquo;s key metrics (FLOP/s, memory bandwidth, interconnect latency).</li>
+              <li>Classify a machine using Flynn&rsquo;s taxonomy and recognise the main parallel-architecture families, including heterogeneous CPU+GPU nodes.</li>
+              <li>Describe how a batch scheduler allocates nodes and interpret common performance benchmarks (LINPACK / HPL, HPCG).</li>
+              <li>Outline the cloud HPC service models and weigh their trade-offs against on-premise clusters.</li>
+              <li>Set up an HPC environment, compile, and submit a first simple parallel program to a queue.</li>
+            </ul>
+          </div>
 
           <div class="timeline">
             <div class="session">
@@ -378,6 +517,9 @@
                 <h4>Evolution and fundamentals of HPC <span class="mode-pill mode-live">Live</span></h4>
                 <p class="session-obj">Lay the groundwork for the whole course: structure, assignments, grading and class dynamics. Core HPC concepts, the anatomy of a supercomputer, key performance indicators and a short history of supercomputing.</p>
                 <ul class="topics"><li>What HPC is</li><li>Supercomputer anatomy</li><li>Key performance indicators</li><li>History of supercomputing</li><li>Assignment methodology</li></ul>
+                <p class="session-obj"><em>What HPC is</em> — aggregating many processors, fast memory and a low-latency interconnect to solve one problem far faster than a single machine could. <em>Supercomputer anatomy</em> — compute nodes, accelerators, a high-speed network (InfiniBand / Slingshot), a parallel filesystem and a login/scheduler layer. <em>Key performance indicators</em> — peak vs. sustained FLOP/s, memory bandwidth, and interconnect latency/bandwidth. <em>History</em> — from Cray vector machines through Beowulf commodity clusters to today&rsquo;s GPU-accelerated exascale systems (Frontier, LUMI, Leonardo).</p>
+                <div class="keyidea"><strong>Key idea — FLOP/s:</strong> a system rated at 1 PFLOP/s performs 10<sup>15</sup> floating-point operations per second; the <a href="https://top500.org" target="_blank" rel="noreferrer">TOP500</a> ranks machines by sustained <code>HPL</code> (LINPACK) performance, which is always below the theoretical peak.</div>
+                <p class="reading"><strong>Read:</strong> Sterling et&nbsp;al., ch.&nbsp;1–2 — a comprehensive, accessible orientation to what supercomputers are and why they matter; sets vocabulary used for the rest of the course.</p>
               </div>
             </div>
             <div class="session">
@@ -387,7 +529,10 @@
                 <h4>Architectural overview of HPC systems <span class="mode-pill mode-live">Live</span></h4>
                 <p class="session-obj">Demystify the parallel-architecture families through Flynn's taxonomy and the technologies enabling supercomputing today, ending on multiprocessors and heterogeneous computing.</p>
                 <ul class="topics"><li>Flynn's taxonomy</li><li>Parallel architecture families</li><li>Processors</li><li>Multiprocessors</li><li>Heterogeneous computing</li></ul>
+                <p class="session-obj"><em>Flynn&rsquo;s taxonomy</em> classifies machines by how many instruction and data streams run at once — SISD, SIMD, MISD and MIMD. <em>Architecture families</em> span shared-memory SMPs, distributed-memory clusters and vector/SIMD units. <em>Heterogeneous computing</em> pairs general-purpose CPUs with throughput-oriented accelerators (GPUs) on the same node.</p>
+                <div class="keyidea"><strong>Key idea — SIMD vs. MIMD:</strong> a GPU is essentially a huge SIMD engine (one instruction, thousands of data elements), whereas an MPI cluster is MIMD (each rank runs its own instruction stream over its own data). Most real HPC codes combine both.</div>
                 <div class="callout"><strong>Project link:</strong> the four MiniWeather backends — serial, cache-blocked, CPU-parallel, GPU — are exactly the heterogeneous-architecture spectrum introduced here.</div>
+                <p class="reading"><strong>Read:</strong> Sterling et&nbsp;al., ch.&nbsp;3–4 (architecture); <em>Intro to HPC for Scientists &amp; Engineers</em>, ch.&nbsp;1 — a concise tour of mainstream parallel-computer architecture and where the performance comes from.</p>
               </div>
             </div>
             <div class="session">
@@ -397,7 +542,10 @@
                 <h4>Resource management &amp; performance metrics in parallel systems <span class="mode-pill mode-live">Live</span></h4>
                 <p class="session-obj">Operational HPC: job scheduling strategies, resource allocation and the performance benchmarks that keep parallel environments running efficiently.</p>
                 <ul class="topics"><li>Job scheduling</li><li>Resource allocation</li><li>Performance benchmarks</li><li>Cluster operation</li></ul>
+                <p class="session-obj"><em>Job scheduling</em> — a batch scheduler (SLURM, PBS) queues jobs and matches their resource requests (nodes, cores, GPUs, walltime) to free hardware, balancing throughput against fairness. <em>Performance benchmarks</em> — HPL/LINPACK stresses dense floating-point; HPCG stresses sparse, memory-bound kernels; STREAM measures memory bandwidth — together they bracket how a real code will behave.</p>
+                <div class="keyidea"><strong>Key idea — backfill scheduling:</strong> short jobs are slotted into gaps ahead of a large queued job as long as they don&rsquo;t delay its reserved start, which is why an accurate walltime estimate gets you scheduled sooner.</div>
                 <div class="callout"><strong>Project link:</strong> MiniWeather ships SLURM <code>*.sbatch</code> / <code>*.slurm</code> scripts for a Magic Castle cluster — job scheduling in practice.</div>
+                <p class="reading"><strong>Read:</strong> Sterling et&nbsp;al., ch.&nbsp;5 (resource management) and the SLURM <em>quickstart</em> documentation — the operational backdrop for every later hands-on session.</p>
               </div>
             </div>
             <div class="session">
@@ -407,6 +555,9 @@
                 <h4>Introduction to cloud-based HPC and virtualization <span class="mode-pill mode-live">Live</span></h4>
                 <p class="session-obj">How cloud computing reshaped HPC accessibility and scalability: virtualization basics, cloud service models, and the benefits and challenges of cloud HPC in scientific workflows.</p>
                 <ul class="topics"><li>Virtualization</li><li>Cloud service models</li><li>Cloud HPC trade-offs</li><li>Scientific workflows</li></ul>
+                <p class="session-obj"><em>Virtualization</em> lets one physical machine present many isolated virtual ones; lightweight containers (Singularity/Apptainer, Docker) package an application&rsquo;s whole software stack for reproducibility. <em>Service models</em> — IaaS, PaaS and SaaS — trade control for convenience. <em>Trade-offs</em> — cloud gives elastic capacity and zero capital cost but adds virtualization overhead, slower interconnects and egress fees that can hurt tightly-coupled MPI jobs.</p>
+                <div class="keyidea"><strong>Key idea — elasticity vs. coupling:</strong> embarrassingly-parallel workloads (parameter sweeps, ML inference) scale beautifully on cloud; latency-bound MPI codes with frequent halo exchange often still favour a dedicated low-latency cluster.</div>
+                <p class="reading"><strong>Read:</strong> Sterling et&nbsp;al., ch.&nbsp;on cloud &amp; commodity clusters; vendor HPC whitepapers (AWS ParallelCluster, Azure CycleCloud) — concrete cloud-HPC reference architectures.</p>
               </div>
             </div>
             <div class="session">
@@ -416,7 +567,10 @@
                 <h4>HPC in health &amp; neurosciences · environment setup &amp; simple parallel codes <span class="mode-pill mode-async">Async</span></h4>
                 <p class="session-obj">Set up HPC environments and write first parallel codes, with examples from health and neuroscience research. Includes the individual and group assignment explanation.</p>
                 <ul class="topics"><li>Environment setup</li><li>First parallel codes</li><li>Health &amp; neuroscience cases</li><li>Assignment briefing</li></ul>
+                <p class="session-obj"><em>Environment setup</em> — load compiler and MPI modules (<code>module load</code>), build with <code>mpicc</code>/<code>nvcc</code>, and submit through the scheduler. <em>First parallel codes</em> — a &ldquo;hello, ranks&rdquo; MPI program and a simple OpenMP loop that establish the mental model of many workers cooperating. <em>Health &amp; neuroscience cases</em> — genomics pipelines, medical-image reconstruction and large-scale brain simulation show why this compute matters.</p>
+                <div class="keyidea"><strong>Key idea — concrete companion:</strong> the <a href="./index.html">MiniWeather project</a> in this repo is the worked example you keep returning to — clone it, build the serial backend, then watch the parallel ones reproduce the same field faster.</div>
                 <div class="tags"><span class="tag proj">individual + group assignments</span></div>
+                <p class="reading"><strong>Read:</strong> Robey &amp; Zamora, ch.&nbsp;1–2 — a hands-on on-ramp to building and running parallel code, ideal for the first assignment.</p>
               </div>
             </div>
           </div>
@@ -431,7 +585,20 @@
           <p class="module-intro">
             Distributed vs. shared memory, MPI and OpenMP, GPU computing with OpenACC/CUDA, and a CFD case study
             integrating MPI + OpenMP — the heart of the parallel-programming skillset the MiniWeather project exercises.
+            This is where the abstract architectures of Module&nbsp;1 become code you actually write: decomposing a problem,
+            communicating between workers, and choosing the right paradigm for the hardware in front of you.
           </p>
+
+          <div class="outcomes">
+            <h3>By the end of Module 2 you can</h3>
+            <ul>
+              <li>Contrast shared- and distributed-memory models and pick the right one (or both) for a given problem and machine.</li>
+              <li>Write MPI programs using point-to-point and collective communication, and decompose a grid across ranks with a halo (ghost-cell) exchange.</li>
+              <li>Parallelise loops with OpenMP, choosing scheduling and reduction clauses and avoiding data races.</li>
+              <li>Map a data-parallel kernel onto a GPU with CUDA/OpenACC, reasoning about threads, blocks and coalesced memory access.</li>
+              <li>Combine MPI and OpenMP into a hybrid program and apply it to a CFD-style stencil computation.</li>
+            </ul>
+          </div>
 
           <div class="timeline">
             <div class="session">
@@ -441,7 +608,10 @@
                 <h4>Distributed and shared memory concepts <span class="mode-pill mode-live">Live</span></h4>
                 <p class="session-obj">The core architectures of parallel computing: distributed vs. shared memory, their advantages, challenges and suitable scenarios, and how each shapes programming paradigms and performance.</p>
                 <ul class="topics"><li>Shared memory</li><li>Distributed memory</li><li>Programming paradigms</li><li>Performance trade-offs</li></ul>
+                <p class="session-obj"><em>Shared memory</em> — all cores see one address space, so communication is just reading the same variable, but synchronization and cache coherence become the bottleneck (the OpenMP model). <em>Distributed memory</em> — each node owns private memory and must explicitly send messages to share data (the MPI model), which scales to thousands of nodes at the cost of programmer effort. <em>Trade-offs</em> centre on the cost of communication versus the cost of synchronization.</p>
+                <div class="keyidea"><strong>Key idea — Amdahl vs. Gustafson:</strong> Amdahl&rsquo;s law caps speedup at <code>1/(s + p/N)</code> for a fixed problem with serial fraction <code>s</code>; Gustafson&rsquo;s law observes that in practice you grow the problem with <code>N</code>, so weak scaling stays useful well past Amdahl&rsquo;s pessimistic ceiling.</div>
                 <div class="callout"><strong>Project link:</strong> MiniWeather's halo exchange (<code>halo.cpp</code>) is the distributed-memory boundary problem made concrete.</div>
+                <p class="reading"><strong>Read:</strong> Robey &amp; Zamora, ch.&nbsp;3–4; <em>Intro to HPC for Scientists &amp; Engineers</em>, ch.&nbsp;on parallel computers — clear treatment of the two memory models and the scaling laws.</p>
               </div>
             </div>
             <div class="session">
@@ -451,8 +621,11 @@
                 <h4>Deep dive into MPI programming <span class="mode-pill mode-live">Live</span></h4>
                 <p class="session-obj">MPI from basic to intermediate: communication patterns, data distribution and collective operations, with hands-on practice writing and running MPI programs on distributed-memory systems.</p>
                 <ul class="topics"><li>Point-to-point comms</li><li>Collective operations</li><li>Data distribution</li><li>Hands-on MPI</li></ul>
+                <p class="session-obj"><em>Point-to-point</em> — <code>MPI_Send</code>/<code>MPI_Recv</code> (and their non-blocking <code>MPI_Isend</code>/<code>MPI_Irecv</code> forms) move data between two named ranks. <em>Collectives</em> — <code>MPI_Bcast</code>, <code>MPI_Scatter</code>, <code>MPI_Gather</code>, <code>MPI_Reduce</code>, <code>MPI_Allreduce</code> coordinate all ranks at once and are implemented with optimised tree algorithms. <em>Data distribution</em> — splitting a domain so each rank owns a contiguous block keeps communication local to neighbours.</p>
+                <div class="keyidea"><strong>Key idea — halo (ghost-cell) exchange:</strong> a rank pads its sub-grid with a border copied from its neighbours each step, so the stencil can be applied locally without per-cell messaging. Overlapping this exchange with interior computation (non-blocking sends) hides the communication latency.</div>
                 <div class="tags"><span class="tag">MPI</span></div>
                 <div class="callout"><strong>Project link:</strong> <code>stencil_cpu_parallel.cpp</code> partitions the 3D grid across MPI ranks and exchanges halo layers each step.</div>
+                <p class="reading"><strong>Read:</strong> Robey &amp; Zamora, ch.&nbsp;8 (MPI); the MPI Forum standard / <em>Using MPI</em> reference for the call signatures used in the lab.</p>
               </div>
             </div>
             <div class="session">
@@ -462,8 +635,11 @@
                 <h4>OpenMP for multithreading <span class="mode-pill mode-live">Live</span></h4>
                 <p class="session-obj">Shared-memory parallelism with OpenMP directives: workload distribution, synchronization and memory management for multicore processors, with interactive performance experiments.</p>
                 <ul class="topics"><li>OpenMP directives</li><li>Workload distribution</li><li>Synchronization</li><li>Multicore scaling</li></ul>
+                <p class="session-obj"><em>Directives</em> — <code>#pragma omp parallel for</code> spreads loop iterations across a team of threads sharing memory. <em>Workload distribution</em> — the <code>schedule</code> clause (<code>static</code>, <code>dynamic</code>, <code>guided</code>) trades load-balance against overhead. <em>Synchronization</em> — <code>critical</code>, <code>atomic</code> and <code>reduction</code> prevent two threads from clobbering the same memory. <em>Scaling</em> is limited by memory bandwidth and false sharing, not just core count.</p>
+                <div class="keyidea"><strong>Key idea — scheduling choice:</strong> use <code>static</code> when every iteration costs the same (best cache reuse, least overhead) and <code>dynamic</code>/<code>guided</code> when iteration cost is uneven — at the price of extra runtime bookkeeping.</div>
                 <div class="tags"><span class="tag">OpenMP</span></div>
                 <div class="callout"><strong>Project link:</strong> the same <code>stencil_cpu_parallel.cpp</code> threads across cores with OpenMP inside each MPI rank.</div>
+                <p class="reading"><strong>Read:</strong> Robey &amp; Zamora, ch.&nbsp;7 (OpenMP); the OpenMP API examples document — directive-by-directive walkthroughs.</p>
               </div>
             </div>
             <div class="session">
@@ -473,8 +649,11 @@
                 <h4>Introduction to GPU computing · OpenACC/CUDA basics <span class="mode-pill mode-live">Live</span></h4>
                 <p class="session-obj">GPU architecture and programming with CUDA and OpenACC: develop and optimize parallel algorithms that exploit the massive parallelism of GPUs for compute-intensive tasks.</p>
                 <ul class="topics"><li>GPU architecture</li><li>CUDA</li><li>OpenACC</li><li>Massive parallelism</li></ul>
+                <p class="session-obj"><em>GPU architecture</em> — thousands of lightweight cores grouped into streaming multiprocessors, optimised for throughput over latency. <em>CUDA</em> exposes this explicitly: you write a <em>kernel</em> launched over a <em>grid of thread blocks</em>, where threads in a block share fast on-chip memory. <em>OpenACC</em> takes a directive-based shortcut (<code>#pragma acc</code>) that the compiler turns into GPU code, trading control for productivity.</p>
+                <div class="keyidea"><strong>Key idea — grid / block / warp:</strong> threads execute in groups of 32 (a <em>warp</em>) in lockstep; <em>coalesced</em> memory access (consecutive threads reading consecutive addresses) and using <em>shared memory</em> as a manual cache are the two biggest levers for GPU performance.</div>
                 <div class="tags"><span class="tag">CUDA</span><span class="tag">OpenACC</span></div>
                 <div class="callout"><strong>Project link:</strong> <code>stencil_gpu.cu</code> maps each grid cell to a CUDA thread with coalesced loads and shared-memory tiling.</div>
+                <p class="reading"><strong>Read:</strong> Robey &amp; Zamora, ch.&nbsp;9–12 (GPU/CUDA/OpenACC); the CUDA C++ Programming Guide, intro chapters.</p>
               </div>
             </div>
             <div class="session">
@@ -484,8 +663,11 @@
                 <h4>Computational Fluid Dynamics (CFD) with HPC · MPI + OpenMP integration <span class="mode-pill mode-async">Async</span></h4>
                 <p class="session-obj">Apply parallel computing to CFD: engage with simulations using MPI and OpenMP together, gaining practical experience in hybrid parallel programming across distributed and shared memory.</p>
                 <ul class="topics"><li>CFD simulations</li><li>Hybrid MPI + OpenMP</li><li>Fluid dynamics</li><li>Scientific computing</li></ul>
+                <p class="session-obj"><em>CFD</em> discretises the governing fluid equations onto a grid and advances them step by step — a textbook HPC workload because each cell depends only on its neighbours. <em>Hybrid MPI + OpenMP</em> — MPI distributes the grid across nodes while OpenMP threads the work within each node, matching the two-level structure of modern clusters (many nodes, many cores per node).</p>
+                <div class="keyidea"><strong>Key idea — why hybrid:</strong> one MPI rank per node with OpenMP threads inside cuts the number of MPI messages and the memory spent on halo buffers, compared with one rank per core — often the difference between scaling and stalling at high core counts.</div>
                 <div class="tags"><span class="tag">MPI</span><span class="tag">OpenMP</span></div>
                 <div class="callout"><strong>Project link:</strong> MiniWeather is itself a stencil-based fluid/heat solver — the closest analogue to this CFD case in the repo.</div>
+                <p class="reading"><strong>Read:</strong> Robey &amp; Zamora, ch.&nbsp;on hybrid programming; the original MiniWeather mini-app README for a worked CFD-style stencil.</p>
               </div>
             </div>
           </div>
@@ -500,7 +682,21 @@
           <p class="module-intro">
             Optimizing code for HPC architectures: profiling and analysis, checkpointing, the memory hierarchy and
             data locality, high-performance libraries, parallel I/O and parallel filesystems, with cluster performance tuning.
+            The recurring lesson of this module is that on modern hardware most scientific codes are limited by
+            <em>data movement</em>, not arithmetic — so optimization is largely about keeping the right data close to the
+            processor at the right time.
           </p>
+
+          <div class="outcomes">
+            <h3>By the end of Module 3 you can</h3>
+            <ul>
+              <li>Profile a parallel application, read the results, and locate the dominant bottleneck before changing code.</li>
+              <li>Restructure loops (unrolling, vectorization, blocking) to raise arithmetic intensity and cache reuse.</li>
+              <li>Reason about the memory hierarchy and place a kernel on the roofline model to know whether it is compute- or memory-bound.</li>
+              <li>Use high-performance libraries (BLAS, LAPACK, FFTW) instead of hand-rolling numerical kernels.</li>
+              <li>Apply parallel I/O and checkpointing so large, long-running jobs are both scalable and fault-tolerant.</li>
+            </ul>
+          </div>
 
           <div class="timeline">
             <div class="session">
@@ -510,7 +706,10 @@
                 <h4>Optimizing code for HPC architectures <span class="mode-pill mode-live">Live</span></h4>
                 <p class="session-obj">Strategies to fully exploit HPC architectures: code profiling, algorithmic choices and data-structure optimization, with loop unrolling, vectorization, memory-access patterns and cache utilization.</p>
                 <ul class="topics"><li>Loop unrolling</li><li>Vectorization</li><li>Memory-access patterns</li><li>Cache utilization</li></ul>
+                <p class="session-obj"><em>Loop unrolling</em> reduces loop-control overhead and exposes more independent work to the pipeline. <em>Vectorization</em> (SIMD) packs several array elements into one wide register so a single instruction processes 4–16 values at once. <em>Memory-access patterns</em> — stride-1, contiguous access lets the hardware prefetch and fully use each cache line. <em>Cache utilization</em> is the master variable: a kernel that streams data once is fundamentally slower than one that reuses it.</p>
+                <div class="keyidea"><strong>Key idea — cache locality:</strong> a cache line is typically 64&nbsp;bytes; accessing memory with stride&nbsp;1 uses all of it, while a large stride wastes most of every line. The roofline model formalises this — performance is capped by <code>min(peak FLOP/s, bandwidth &times; arithmetic intensity)</code>.</div>
                 <div class="callout"><strong>Project link:</strong> <code>stencil_cpu_blocked.cpp</code> tiles the loops so each block fits in L1/L2 — same FLOPs, far fewer cache misses.</div>
+                <p class="reading"><strong>Read:</strong> <em>Intro to HPC for Scientists &amp; Engineers</em>, ch.&nbsp;on optimization &amp; the memory hierarchy — the definitive treatment of single-node tuning; Barba &amp; Forsyth for the Python angle.</p>
               </div>
             </div>
             <div class="session">
@@ -520,7 +719,10 @@
                 <h4>Profiling &amp; performance analysis tools · checkpointing <span class="mode-pill mode-live">Live</span></h4>
                 <p class="session-obj">Tools and methodologies for profiling CPU and memory performance, plus checkpointing for fault tolerance in long-running computations — identifying and mitigating bottlenecks.</p>
                 <ul class="topics"><li>CPU/memory profiling</li><li>Bottleneck analysis</li><li>Checkpointing</li><li>Fault tolerance</li></ul>
+                <p class="session-obj"><em>Profiling</em> tools (perf, gprof, Intel VTune, NVIDIA Nsight) sample where time and cache misses actually occur — replacing guesswork with evidence. <em>Bottleneck analysis</em> follows Amdahl: optimise the part that dominates the runtime, not the part that is easiest. <em>Checkpointing</em> periodically saves application state to disk so a multi-day job can restart after a node failure instead of starting over.</p>
+                <div class="keyidea"><strong>Key idea — measure first:</strong> intuition about hot spots is wrong surprisingly often. Profile, find the &ldquo;5% of code that takes 80% of the time,&rdquo; optimise <em>that</em>, then re-profile — optimization is a loop, not a one-shot.</div>
                 <div class="callout"><strong>Project link:</strong> MiniWeather's <code>timer.cpp</code> and <code>profiling/</code> directory are where each backend's runtime is measured.</div>
+                <p class="reading"><strong>Read:</strong> Robey &amp; Zamora, ch.&nbsp;on profiling tools; tool docs for <code>perf</code> and Nsight Systems — the practical reference for the profiling assignment.</p>
               </div>
             </div>
             <div class="session">
@@ -530,6 +732,9 @@
                 <h4>Memory hierarchy &amp; data locality · high-performance libraries <span class="mode-pill mode-live">Live</span></h4>
                 <p class="session-obj">Principles of the memory hierarchy from registers to disk, strategies to maximize data locality, and the high-performance scientific libraries that provide optimized math primitives.</p>
                 <ul class="topics"><li>Memory hierarchy</li><li>Data locality</li><li>Scientific libraries</li><li>Optimized primitives</li></ul>
+                <p class="session-obj"><em>Memory hierarchy</em> — registers, L1/L2/L3 cache, DRAM, then disk, each roughly an order of magnitude larger but slower than the last. <em>Data locality</em> — <em>temporal</em> (reuse data before it is evicted) and <em>spatial</em> (use neighbouring data already in the cache line) — is what keeps the fast levels busy. <em>High-performance libraries</em> — BLAS, LAPACK, FFTW, cuBLAS — encapsulate decades of tuning so you rarely beat them by hand.</p>
+                <div class="keyidea"><strong>Key idea — don&rsquo;t reinvent the kernel:</strong> a vendor-tuned <code>dgemm</code> (matrix multiply) can run at &gt;90% of peak FLOP/s; a naive triple loop reaches a few percent. Reach for the library before writing the loop.</div>
+                <p class="reading"><strong>Read:</strong> <em>Intro to HPC for Scientists &amp; Engineers</em>, memory-hierarchy chapter; the BLAS/LAPACK and FFTW user guides.</p>
               </div>
             </div>
             <div class="session">
@@ -539,6 +744,9 @@
                 <h4>Parallel I/O &amp; high-throughput data management · parallel filesystems <span class="mode-pill mode-live">Live</span></h4>
                 <p class="session-obj">Parallel I/O challenges and solutions: parallel filesystem architecture, best practices for scalable I/O, and managing large datasets in distributed HPC environments.</p>
                 <ul class="topics"><li>Parallel I/O</li><li>Parallel filesystems</li><li>Scalable I/O</li><li>Large datasets</li></ul>
+                <p class="session-obj"><em>Parallel I/O</em> lets many ranks read or write one shared file at once through MPI-IO and self-describing formats (HDF5, NetCDF, ADIOS) rather than each rank opening its own file. <em>Parallel filesystems</em> (Lustre, GPFS/Spectrum&nbsp;Scale, BeeGFS) stripe a file across many storage servers so aggregate bandwidth scales with the cluster.</p>
+                <div class="keyidea"><strong>Key idea — I/O can dominate:</strong> at scale, writing checkpoints and results often costs more wall-clock time than computing them. Collective, striped I/O to a parallel filesystem — not thousands of small per-rank files — is what keeps that cost in check.</div>
+                <p class="reading"><strong>Read:</strong> Sterling et&nbsp;al., storage &amp; I/O chapters; the HDF5 and Lustre best-practices guides.</p>
               </div>
             </div>
             <div class="session">
@@ -548,7 +756,10 @@
                 <h4>Molecular systems &amp; material sciences · performance tuning on clusters <span class="mode-pill mode-async">Async</span></h4>
                 <p class="session-obj">Apply optimization in a real scientific context: case studies in computational chemistry and physics, with assignments tuning simulation-code performance on HPC clusters.</p>
                 <ul class="topics"><li>Computational chemistry</li><li>Material sciences</li><li>Cluster tuning</li><li>Simulation codes</li></ul>
+                <p class="session-obj"><em>Computational chemistry &amp; materials</em> — molecular dynamics (GROMACS, LAMMPS) and electronic-structure codes (VASP, Quantum&nbsp;ESPRESSO) are among the largest consumers of supercomputer time. <em>Cluster tuning</em> — the assignment applies this module&rsquo;s techniques to a real simulation: profile it, fix the dominant bottleneck, and document the speedup with a scaling study.</p>
+                <div class="keyidea"><strong>Key idea — strong vs. weak scaling:</strong> a <em>strong</em>-scaling study fixes the problem and adds cores (watch for the Amdahl ceiling); a <em>weak</em>-scaling study grows the problem with the cores (watch for communication overhead). Report both.</div>
                 <div class="tags"><span class="tag proj">tuning assignment</span></div>
+                <p class="reading"><strong>Read:</strong> domain mini-app docs (GROMACS / LAMMPS performance guides); Robey &amp; Zamora&rsquo;s scaling-study chapter for the experimental method.</p>
               </div>
             </div>
           </div>
@@ -563,7 +774,20 @@
           <p class="module-intro">
             Scalable parallel algorithms for big data, high-performance data structures and visualization, and the
             fundamentals of distributed ML and deep learning at scale — culminating in a distributed-ML project.
+            This module turns the parallel-computing machinery of Modules&nbsp;2–3 toward data-intensive and
+            AI workloads, the fastest-growing use of supercomputers today.
           </p>
+
+          <div class="outcomes">
+            <h3>By the end of Module 4 you can</h3>
+            <ul>
+              <li>Design a scalable parallel algorithm and express a data-processing job in the MapReduce model.</li>
+              <li>Choose data structures (and layouts such as structure-of-arrays) that stay efficient in parallel and distributed settings.</li>
+              <li>Distinguish data parallelism from model parallelism and explain how each scales a training job across nodes.</li>
+              <li>Identify the bottlenecks of large-scale deep-learning training and the techniques (gradient accumulation, batch scaling, mixed precision) that address them.</li>
+              <li>Implement and run a distributed ML model end-to-end as the module project.</li>
+            </ul>
+          </div>
 
           <div class="timeline">
             <div class="session">
@@ -573,6 +797,9 @@
                 <h4>Scalable parallel algorithms for Big Data · MapReduce <span class="mode-pill mode-live">Live</span></h4>
                 <p class="session-obj">Designing algorithms that scale across many processing units, centred on the MapReduce model for distributed data processing, with real-world big-data case studies.</p>
                 <ul class="topics"><li>Scalable algorithms</li><li>MapReduce</li><li>Distributed data</li><li>Big data</li></ul>
+                <p class="session-obj"><em>Scalable algorithms</em> minimise communication and synchronization so adding nodes keeps paying off. <em>MapReduce</em> expresses a computation as a <em>map</em> (transform records in parallel) followed by a <em>reduce</em> (aggregate by key), with the framework (Hadoop, Spark) handling distribution, shuffling and fault tolerance. <em>Big data</em> case studies — log analysis, indexing, ETL — show the pattern at web scale.</p>
+                <div class="keyidea"><strong>Key idea — move compute to the data:</strong> when datasets are too large to relocate, MapReduce schedules the <em>map</em> tasks on the nodes that already hold each data block, so the network carries only the small reduced results.</div>
+                <p class="reading"><strong>Read:</strong> Dean &amp; Ghemawat&rsquo;s original MapReduce paper; Robey &amp; Zamora&rsquo;s data-parallel-algorithms chapter.</p>
               </div>
             </div>
             <div class="session">
@@ -582,7 +809,10 @@
                 <h4>Data structures for high performance · visualization <span class="mode-pill mode-live">Live</span></h4>
                 <p class="session-obj">Data structures that maximize efficiency in parallel and distributed environments, plus the principles and tools of scientific visualization for interpreting complex HPC datasets.</p>
                 <ul class="topics"><li>HP data structures</li><li>Scientific visualization</li><li>Parallel efficiency</li><li>Data interpretation</li></ul>
+                <p class="session-obj"><em>HP data structures</em> — cache-friendly layouts (structure-of-arrays over array-of-structures), space-filling curves and distributed hash tables keep parallel access contention-free. <em>Scientific visualization</em> — turning multi-gigabyte fields into images and isosurfaces with tools such as ParaView and VisIt, often rendered in parallel <em>in situ</em> while the simulation runs.</p>
+                <div class="keyidea"><strong>Key idea — SoA vs. AoS:</strong> storing each field as its own contiguous array (structure-of-arrays) lets the CPU vectorise and the GPU coalesce; interleaving fields per cell (array-of-structures) defeats both. Layout is a performance decision, not a style choice.</div>
                 <div class="callout"><strong>Project link:</strong> the MiniWeather web page itself is the visualization layer — 2D slices, 3D isosurfaces and an animated GIF of the field.</div>
+                <p class="reading"><strong>Read:</strong> Robey &amp; Zamora&rsquo;s data-layout chapter; the ParaView guide for the visualization workflow mirrored in this repo.</p>
               </div>
             </div>
             <div class="session">
@@ -592,6 +822,9 @@
                 <h4>Fundamentals of distributed machine learning <span class="mode-pill mode-live">Live</span></h4>
                 <p class="session-obj">Foundations of distributed ML: data parallelism, model parallelism and strategies for scaling ML across multiple nodes, plus the frameworks and libraries that enable it.</p>
                 <ul class="topics"><li>Data parallelism</li><li>Model parallelism</li><li>Multi-node scaling</li><li>ML frameworks</li></ul>
+                <p class="session-obj"><em>Data parallelism</em> replicates the model on every worker, feeds each a different shard of the batch, and averages gradients with an <code>all-reduce</code> — the most common strategy. <em>Model parallelism</em> splits a model too large for one device across several (tensor and pipeline parallelism). <em>Frameworks</em> — PyTorch DDP/FSDP, Horovod, DeepSpeed — implement these patterns over MPI-style collectives.</p>
+                <div class="keyidea"><strong>Key idea — all-reduce is the heartbeat:</strong> synchronous data-parallel training is essentially a giant <code>MPI_Allreduce</code> on the gradients every step, so the same interconnect and collective-algorithm concerns from Module&nbsp;2 govern how well training scales.</div>
+                <p class="reading"><strong>Read:</strong> the Horovod and PyTorch-Distributed documentation; survey papers on data vs. model parallelism.</p>
               </div>
             </div>
             <div class="session">
@@ -601,6 +834,9 @@
                 <h4>Deep learning at scale <span class="mode-pill mode-live">Live</span></h4>
                 <p class="session-obj">Scaling deep-learning models on HPC: training large neural networks with gradient accumulation, batch-size scaling and accelerators such as GPUs and TPUs.</p>
                 <ul class="topics"><li>Large neural networks</li><li>Gradient accumulation</li><li>Batch-size scaling</li><li>GPUs &amp; TPUs</li></ul>
+                <p class="session-obj"><em>Gradient accumulation</em> sums gradients over several micro-batches before updating, simulating a large batch on limited memory. <em>Batch-size scaling</em> trades a larger effective batch (more parallelism) against optimisation quality, usually managed with a learning-rate warmup. <em>Accelerators</em> — GPUs and TPUs with mixed-precision (FP16/BF16) tensor cores — supply the raw throughput.</p>
+                <div class="keyidea"><strong>Key idea — the memory wall of training:</strong> activations, weights and optimiser state often exceed a single GPU&rsquo;s memory, which is precisely why gradient accumulation, mixed precision and model-sharding (ZeRO/FSDP) exist.</div>
+                <p class="reading"><strong>Read:</strong> Goyal et&nbsp;al. &ldquo;Accurate, Large Minibatch SGD&rdquo;; the DeepSpeed/ZeRO documentation.</p>
               </div>
             </div>
             <div class="session">
@@ -610,7 +846,10 @@
                 <h4>Implementing a distributed ML model <span class="mode-pill mode-async">Async</span></h4>
                 <p class="session-obj">Apply distributed-ML and deep-learning-at-scale concepts in a hands-on implementation of a distributed machine-learning model.</p>
                 <ul class="topics"><li>Distributed ML</li><li>Hands-on implementation</li><li>Scaling in practice</li></ul>
+                <p class="session-obj">Bring it together: take a model and dataset, distribute training across multiple GPUs or nodes, and measure the speedup and accuracy trade-offs. The deliverable is a working distributed-training run plus a short scaling analysis — the same strong/weak-scaling discipline from Module&nbsp;3 applied to ML.</p>
+                <div class="keyidea"><strong>Key idea — scaling efficiency:</strong> report <em>throughput</em> (samples/s) and <em>scaling efficiency</em> (speedup &divide; number of devices), not just &ldquo;it ran on 4 GPUs&rdquo; — efficiency below ~0.8 usually points to a communication or input-pipeline bottleneck.</div>
                 <div class="tags"><span class="tag proj">distributed-ML project</span></div>
+                <p class="reading"><strong>Read:</strong> the framework tutorials selected for your stack (PyTorch DDP / Horovod); revisit Module&nbsp;4 sessions 18–19.</p>
               </div>
             </div>
           </div>
@@ -624,8 +863,21 @@
           </div>
           <p class="module-intro">
             Hybrid-computing patterns, advanced MPI and OpenMP, and accelerators like FPGAs — applied to climate and
-            terrestrial-systems modelling, the domain MiniWeather itself belongs to.
+            terrestrial-systems modelling, the domain MiniWeather itself belongs to. Where Module&nbsp;2 taught each
+            paradigm in isolation, this module is about <em>composing</em> them and squeezing out the last increments of
+            performance on the largest machines.
           </p>
+
+          <div class="outcomes">
+            <h3>By the end of Module 5 you can</h3>
+            <ul>
+              <li>Recognise common hybrid-computing patterns and decide how to layer MPI, OpenMP and GPU offload in one application.</li>
+              <li>Use advanced MPI features — non-blocking and one-sided (RMA) communication, persistent requests, dynamic processes — to overlap and optimise communication.</li>
+              <li>Apply advanced OpenMP — tasks, SIMD directives and <code>target</code> device offload — beyond simple parallel loops.</li>
+              <li>Explain where FPGAs and other specialised accelerators win, and select an accelerator for a given workload.</li>
+              <li>Build a hybrid MPI/OpenMP application for a climate / terrestrial-systems model — exactly MiniWeather&rsquo;s territory.</li>
+            </ul>
+          </div>
 
           <div class="timeline">
             <div class="session">
@@ -635,8 +887,11 @@
                 <h4>Patterns in hybrid computing <span class="mode-pill mode-live">Live</span></h4>
                 <p class="session-obj">Where multiple parallel paradigms coexist in one application: common hybrid patterns integrating MPI with OpenMP and GPU computing, shown through case studies.</p>
                 <ul class="topics"><li>Hybrid patterns</li><li>MPI + OpenMP + GPU</li><li>Paradigm integration</li></ul>
+                <p class="session-obj"><em>Hybrid patterns</em> map each paradigm onto the level of hardware it fits best: MPI between nodes, OpenMP among the cores of a node, and CUDA/OpenACC on the GPU within a node. <em>Integration</em> requires care at the seams — e.g. ensuring MPI is initialised for thread support (<code>MPI_THREAD_MULTIPLE</code>) and that GPU buffers can be sent directly (GPU-aware MPI).</p>
+                <div class="keyidea"><strong>Key idea — MPI+X:</strong> the dominant pattern on today&rsquo;s machines is &ldquo;MPI+X,&rdquo; where X is OpenMP or CUDA. One MPI rank per GPU (or per socket), threads/kernels inside, and overlap of halo exchange with on-device compute is the recipe behind most exascale codes.</div>
                 <div class="tags"><span class="tag">MPI</span><span class="tag">OpenMP</span><span class="tag">CUDA</span></div>
                 <div class="callout"><strong>Project link:</strong> MiniWeather's four backends together demonstrate this hybrid stack — MPI across nodes, OpenMP across cores, CUDA on the GPU.</div>
+                <p class="reading"><strong>Read:</strong> Robey &amp; Zamora&rsquo;s hybrid-programming chapter; case studies of MPI+OpenMP+CUDA codes (e.g. the MiniWeather and other DOE mini-apps).</p>
               </div>
             </div>
             <div class="session">
@@ -646,7 +901,10 @@
                 <h4>Advanced MPI <span class="mode-pill mode-live">Live</span></h4>
                 <p class="session-obj">Beyond the basics: dynamic process management, one-sided communications and persistent communication requests for optimizing large-scale parallel applications.</p>
                 <ul class="topics"><li>Dynamic process mgmt</li><li>One-sided comms</li><li>Persistent requests</li></ul>
+                <p class="session-obj"><em>Dynamic process management</em> spawns or connects ranks at runtime for elastic or master/worker workloads. <em>One-sided communication</em> (RMA: <code>MPI_Put</code>/<code>MPI_Get</code>) lets a rank access a neighbour&rsquo;s memory window without that rank posting a matching receive, decoupling the two. <em>Persistent requests</em> set up a repeated communication pattern once and reuse it, cutting per-message overhead in iterative codes.</p>
+                <div class="keyidea"><strong>Key idea — overlap to hide latency:</strong> non-blocking and one-sided calls let computation proceed while messages are in flight; the art of advanced MPI is arranging the code so the network is never the thing everyone waits on.</div>
                 <div class="tags"><span class="tag">MPI</span></div>
+                <p class="reading"><strong>Read:</strong> <em>Using Advanced MPI</em> (Gropp et&nbsp;al.); the MPI-3/4 standard sections on RMA and persistent collectives.</p>
               </div>
             </div>
             <div class="session">
@@ -656,7 +914,10 @@
                 <h4>Advanced OpenMP <span class="mode-pill mode-live">Live</span></h4>
                 <p class="session-obj">Task-based parallelism, SIMD directives and device-memory management for GPU accelerators — enhancing the performance and scalability of shared-memory applications.</p>
                 <ul class="topics"><li>Task parallelism</li><li>SIMD directives</li><li>Device memory</li></ul>
+                <p class="session-obj"><em>Task parallelism</em> (<code>#pragma omp task</code>) expresses irregular, recursive or producer/consumer work that doesn&rsquo;t fit a simple parallel loop. <em>SIMD directives</em> (<code>#pragma omp simd</code>) tell the compiler a loop is safe to vectorise. <em>Device memory &amp; offload</em> (<code>#pragma omp target</code>) move data to and run kernels on a GPU using the same OpenMP model — a portable alternative to CUDA.</p>
+                <div class="keyidea"><strong>Key idea — one model, many devices:</strong> OpenMP <code>target</code> offload lets a single annotated source target multicore CPUs and GPUs alike, trading a little peak performance for portability across vendors.</div>
                 <div class="tags"><span class="tag">OpenMP</span></div>
+                <p class="reading"><strong>Read:</strong> the OpenMP 5.x specification chapters on tasks and device constructs; tutorials on <code>target</code> offload.</p>
               </div>
             </div>
             <div class="session">
@@ -666,6 +927,9 @@
                 <h4>Accelerators: FPGAs and specialized processors <span class="mode-pill mode-live">Live</span></h4>
                 <p class="session-obj">FPGA architecture and programming models, plus other specialized processors in HPC, and how to select the right accelerator for a given workload.</p>
                 <ul class="topics"><li>FPGAs</li><li>Programming models</li><li>Specialized processors</li><li>Accelerator selection</li></ul>
+                <p class="session-obj"><em>FPGAs</em> are reconfigurable chips whose logic you tailor to one algorithm, achieving high performance-per-watt for fixed, streaming dataflow. <em>Programming models</em> — HLS (High-Level Synthesis) and OpenCL — raise FPGA development above raw hardware description. <em>Specialised processors</em> — TPUs, vector engines, AI ASICs — each win on a narrow workload. <em>Selection</em> is a matching problem: data-parallel and floating-point heavy &rarr; GPU; fixed, low-latency streaming &rarr; FPGA/ASIC.</p>
+                <div class="keyidea"><strong>Key idea — performance per watt:</strong> at exascale, power is the binding constraint. Specialised accelerators win not only on raw speed but on energy efficiency, which is why heterogeneous machines dominate the Green500.</div>
+                <p class="reading"><strong>Read:</strong> Sterling et&nbsp;al., accelerators chapter; vendor HLS / OpenCL-for-FPGA introductions.</p>
               </div>
             </div>
             <div class="session">
@@ -675,8 +939,11 @@
                 <h4>Climate &amp; terrestrial systems modelling · hybrid MPI/OpenMP <span class="mode-pill mode-async">Async</span></h4>
                 <p class="session-obj">Apply advanced parallel programming to climate and terrestrial-systems modelling, integrating MPI and OpenMP and possibly GPU accelerators or FPGAs to enhance performance.</p>
                 <ul class="topics"><li>Climate modelling</li><li>Terrestrial systems</li><li>Hybrid MPI/OpenMP</li><li>Accelerators</li></ul>
+                <p class="session-obj">Apply the whole module to an environmental model: a grid-based atmosphere/land simulation parallelised with hybrid MPI + OpenMP and, optionally, GPU or FPGA acceleration. The exercise mirrors how production weather and climate codes (WRF, E3SM, ICON) are actually built and scaled.</p>
+                <div class="keyidea"><strong>Key idea — stencils are the kernel of climate codes:</strong> atmospheric dynamics reduce to repeatedly updating each cell from its neighbours — exactly the 7-point stencil MiniWeather implements — so the parallelisation lessons here transfer directly to real climate modelling.</div>
                 <div class="tags"><span class="tag">MPI</span><span class="tag">OpenMP</span><span class="tag proj">modelling project</span></div>
                 <div class="callout"><strong>Project link:</strong> this is precisely MiniWeather's domain — a mini-weather (climate/atmosphere) stencil solver built with hybrid MPI + OpenMP + CUDA.</div>
+                <p class="reading"><strong>Read:</strong> the MiniWeather mini-app paper/README; overview articles on WRF or E3SM parallelisation.</p>
               </div>
             </div>
           </div>
@@ -690,8 +957,20 @@
           </div>
           <p class="module-intro">
             The future: neuromorphic and quantum computing, the post-exascale era, a pre-exam review, and the final
-            exam with group-project presentations.
+            exam with group-project presentations. Having mastered today&rsquo;s machines, the module steps back to ask
+            where the field is heading once Moore&rsquo;s-law scaling of conventional silicon runs out.
           </p>
+
+          <div class="outcomes">
+            <h3>By the end of Module 6 you can</h3>
+            <ul>
+              <li>Explain the principles of neuromorphic computing and the workloads where event-driven, brain-inspired hardware is efficient.</li>
+              <li>Define the core quantum-computing concepts — qubits, superposition, gates, entanglement — and name where quantum algorithms promise an advantage.</li>
+              <li>Discuss the technical and energy challenges of the post-exascale era and the AI&ndash;HPC convergence reshaping it.</li>
+              <li>Synthesise the whole course and connect each module back to the MiniWeather companion project.</li>
+              <li>Present an end-to-end HPC solution and defend its design, implementation and optimisation choices.</li>
+            </ul>
+          </div>
 
           <div class="timeline">
             <div class="session">
@@ -701,6 +980,9 @@
                 <h4>Neuromorphic computing <span class="mode-pill mode-live">Live</span></h4>
                 <p class="session-obj">Brain-inspired computing: the design and application of neuromorphic systems that mimic neural architectures for efficient sensory processing and machine learning, with their potential and limits.</p>
                 <ul class="topics"><li>Neuromorphic systems</li><li>Neural architectures</li><li>Efficiency</li><li>Limitations</li></ul>
+                <p class="session-obj"><em>Neuromorphic systems</em> (Intel Loihi, SpiNNaker, IBM TrueNorth) implement spiking neural networks directly in hardware, computing only when a neuron &ldquo;fires.&rdquo; This event-driven, in-memory style is extraordinarily energy-efficient for sparse, sensory and edge workloads. <em>Limitations</em> — a young software stack and a narrow class of well-suited problems.</p>
+                <div class="keyidea"><strong>Key idea — collapse the memory wall:</strong> neuromorphic chips co-locate compute and memory and fire only on events, sidestepping the von&nbsp;Neumann bottleneck that dominates the energy cost of conventional HPC.</div>
+                <p class="reading"><strong>Read:</strong> survey articles on Loihi/SpiNNaker; Sterling et&nbsp;al., emerging-architectures discussion.</p>
               </div>
             </div>
             <div class="session">
@@ -710,6 +992,9 @@
                 <h4>Quantum computing fundamentals &amp; applications <span class="mode-pill mode-live">Live</span></h4>
                 <p class="session-obj">The basics of quantum computing — qubits, quantum gates, entanglement — plus quantum algorithms and their applications in cryptography, optimization and simulation.</p>
                 <ul class="topics"><li>Qubits</li><li>Quantum gates</li><li>Entanglement</li><li>Quantum algorithms</li></ul>
+                <p class="session-obj"><em>Qubits</em> hold a superposition of 0 and 1; <em>n</em> qubits span a 2<sup>n</sup>-dimensional state, the source of quantum parallelism. <em>Gates</em> are reversible unitary operations; <em>entanglement</em> correlates qubits so they can no longer be described independently. <em>Algorithms</em> — Shor (factoring), Grover (search), and quantum simulation — target problems classically intractable, though today&rsquo;s noisy devices (NISQ) limit practical scale.</p>
+                <div class="keyidea"><strong>Key idea — HPC + quantum, not vs.:</strong> the near-term role is <em>hybrid</em> — classical supercomputers orchestrate, pre/post-process and error-mitigate quantum co-processors, much as they orchestrate GPUs today. (The course professor leads the EC HPC &amp; Quantum unit.)</div>
+                <p class="reading"><strong>Read:</strong> Nielsen &amp; Chuang, introductory chapters; the Qiskit textbook for a hands-on view of gates and algorithms.</p>
               </div>
             </div>
             <div class="session">
@@ -719,6 +1004,9 @@
                 <h4>Advanced computing: toward the post-exascale era <span class="mode-pill mode-live">Live</span></h4>
                 <p class="session-obj">Beyond exascale: emerging architectures, software paradigms and the integration of AI and big-data analytics into HPC workflows, and the considerations driving the next generation.</p>
                 <ul class="topics"><li>Post-exascale</li><li>Emerging architectures</li><li>AI + HPC convergence</li><li>Future paradigms</li></ul>
+                <p class="session-obj"><em>Post-exascale</em> — with the first exaflop machines (Frontier, El&nbsp;Capitan, JUPITER in Europe) here, the frontier shifts from peak FLOP/s to energy efficiency, resilience and usability. <em>Emerging architectures</em> — chiplets, near-/in-memory compute, optical interconnects. <em>AI&ndash;HPC convergence</em> — simulation and learned surrogate models increasingly run in the same workflow, blurring the line between the two communities.</p>
+                <div class="keyidea"><strong>Key idea — power is the wall:</strong> an exascale system already draws ~20–30&nbsp;MW; the next gains must come from efficiency (specialised hardware, lower precision, smarter algorithms) rather than simply adding more conventional silicon.</div>
+                <p class="reading"><strong>Read:</strong> EuroHPC and US Exascale Computing Project reports; recent TOP500/Green500 commentary.</p>
               </div>
             </div>
             <div class="session">
@@ -728,6 +1016,9 @@
                 <h4>Review session · pre-exam <span class="mode-pill mode-live">Live</span></h4>
                 <p class="session-obj">Synthesize the course: clarify doubts, revisit challenging topics and consolidate knowledge across all modules in preparation for the final examination.</p>
                 <ul class="topics"><li>Concept review</li><li>Doubt clarification</li><li>Synthesis</li><li>Exam prep</li></ul>
+                <p class="session-obj">Consolidate the full arc — from supercomputer anatomy through MPI/OpenMP/CUDA, performance optimization, distributed ML and the frontiers — clarifying doubts and connecting threads across modules in preparation for the final exam.</p>
+                <div class="keyidea"><strong>Key idea — one running example:</strong> use MiniWeather as a revision spine — it touches heterogeneous architecture, halo exchange, cache blocking, GPU kernels and visualization, so explaining its four backends rehearses most of the syllabus at once.</div>
+                <p class="reading"><strong>Review:</strong> the <a href="#concepts">Key concepts</a> glossary below and your per-module assignments.</p>
               </div>
             </div>
             <div class="session">
@@ -737,11 +1028,65 @@
                 <h4>Exam &amp; group assignments <span class="mode-pill mode-live">Live</span></h4>
                 <p class="session-obj">The final session: a written exam plus presentation of group projects, where students demonstrate mastery through the design, implementation and optimization of HPC solutions for real-world problems.</p>
                 <ul class="topics"><li>Final written exam</li><li>Group presentations</li><li>End-to-end HPC solutions</li></ul>
+                <p class="session-obj">Demonstrate mastery: a written exam covering all six modules plus an oral presentation of the group project — the design, implementation and optimisation of an HPC solution to a real-world problem, with results and a scaling analysis.</p>
                 <div class="tags"><span class="tag proj">group project + final exam</span></div>
               </div>
             </div>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- ===== KEY CONCEPTS / GLOSSARY ===== -->
+    <section id="concepts" class="section section-muted">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Key concepts</span>
+            <h2>A glossary of the course&rsquo;s core terms</h2>
+            <p class="muted" style="max-width: 74ch">
+              The recurring vocabulary of high-performance computing, gathered in one place for revision. Each term is
+              defined in a sentence or two; most map directly to a session above and to a part of the
+              <a href="./index.html">MiniWeather</a> companion project.
+            </p>
+          </div>
+        </div>
+
+        <ul class="glossary">
+          <li><dt>FLOP/s</dt><dd>Floating-point operations per second — the basic measure of compute throughput; supercomputers are rated in peta- (10<sup>15</sup>) and exa- (10<sup>18</sup>) FLOP/s.</dd></li>
+          <li><dt>Flynn&rsquo;s taxonomy</dt><dd>Classification of machines by instruction/data streams: SISD, SIMD, MISD, MIMD. GPUs are SIMD-like; MPI clusters are MIMD.</dd></li>
+          <li><dt>Shared memory</dt><dd>A model where all cores access one address space; communication is implicit but synchronization and cache coherence are the cost. OpenMP&rsquo;s model.</dd></li>
+          <li><dt>Distributed memory</dt><dd>A model where each node has private memory and shares data by explicit messages. Scales to thousands of nodes. MPI&rsquo;s model.</dd></li>
+          <li><dt>Amdahl&rsquo;s law</dt><dd>For a fixed problem, speedup is capped at <code>1/(s + p/N)</code> by its serial fraction <code>s</code> — the limit of strong scaling.</dd></li>
+          <li><dt>Gustafson&rsquo;s law</dt><dd>If the problem grows with the processor count, useful (weak) scaling continues well past Amdahl&rsquo;s fixed-size ceiling.</dd></li>
+          <li><dt>Strong vs. weak scaling</dt><dd>Strong: fix the problem, add processors. Weak: grow the problem with the processors. Real studies report both.</dd></li>
+          <li><dt>MPI</dt><dd>Message Passing Interface — the standard library for distributed-memory parallelism, via point-to-point and collective communication.</dd></li>
+          <li><dt>Collective operation</dt><dd>An MPI call involving all ranks at once — broadcast, scatter/gather, reduce, all-reduce — implemented with optimised tree algorithms.</dd></li>
+          <li><dt>Halo / ghost cells</dt><dd>A border of neighbour-owned cells copied into each rank&rsquo;s sub-grid every step so a stencil can be applied locally. Central to MiniWeather.</dd></li>
+          <li><dt>OpenMP</dt><dd>A directive-based API for shared-memory multithreading on multicore CPUs (and, via <code>target</code>, GPUs).</dd></li>
+          <li><dt>Scheduling (OpenMP)</dt><dd>How loop iterations are split among threads: <code>static</code> (even, low overhead), <code>dynamic</code>/<code>guided</code> (load-balanced, more overhead).</dd></li>
+          <li><dt>Race condition</dt><dd>A bug where two threads access the same memory without synchronization, giving nondeterministic results; avoided with atomics, critical sections or reductions.</dd></li>
+          <li><dt>CUDA</dt><dd>NVIDIA&rsquo;s model for GPU programming: a <em>kernel</em> runs over a <em>grid</em> of <em>thread blocks</em>, with fast shared memory per block.</dd></li>
+          <li><dt>Warp</dt><dd>A group of 32 GPU threads executing one instruction in lockstep; branch divergence and uncoalesced access within a warp hurt performance.</dd></li>
+          <li><dt>Coalesced access</dt><dd>Consecutive GPU threads reading consecutive memory addresses, letting the hardware satisfy them in one transaction — a top GPU-performance lever.</dd></li>
+          <li><dt>OpenACC</dt><dd>A directive-based alternative to CUDA that the compiler turns into accelerator code — more portable, slightly less control.</dd></li>
+          <li><dt>Memory hierarchy</dt><dd>Registers &rarr; L1/L2/L3 cache &rarr; DRAM &rarr; disk: each level larger but slower. Performance depends on keeping hot data high in it.</dd></li>
+          <li><dt>Data locality</dt><dd><em>Temporal</em> (reuse before eviction) and <em>spatial</em> (use neighbouring cache-line data) — the basis of cache-friendly code.</dd></li>
+          <li><dt>Cache blocking / tiling</dt><dd>Restructuring loops so each working block fits in cache, cutting misses without changing the arithmetic. MiniWeather&rsquo;s blocked backend.</dd></li>
+          <li><dt>Vectorization (SIMD)</dt><dd>Packing several array elements into one wide register so a single instruction processes them together.</dd></li>
+          <li><dt>Roofline model</dt><dd>A plot bounding performance by <code>min(peak FLOP/s, bandwidth &times; arithmetic intensity)</code>, showing whether a kernel is compute- or memory-bound.</dd></li>
+          <li><dt>Arithmetic intensity</dt><dd>FLOPs performed per byte of memory traffic; low intensity means a kernel is memory-bound, the common case in HPC.</dd></li>
+          <li><dt>Checkpointing</dt><dd>Periodically saving application state to disk so a long job can restart after a failure instead of from the beginning.</dd></li>
+          <li><dt>Parallel filesystem</dt><dd>Storage (Lustre, GPFS, BeeGFS) that stripes files across many servers so aggregate I/O bandwidth scales with the cluster.</dd></li>
+          <li><dt>MapReduce</dt><dd>A big-data model: a parallel <em>map</em> over records followed by a <em>reduce</em> aggregation by key, with the framework handling distribution and faults.</dd></li>
+          <li><dt>Data vs. model parallelism</dt><dd>Data: replicate the model, split the batch, all-reduce gradients. Model: split a too-large model across devices (tensor/pipeline).</dd></li>
+          <li><dt>Hybrid (MPI+X)</dt><dd>Layering paradigms by hardware level — MPI between nodes, OpenMP across cores, CUDA on the GPU — the dominant exascale programming pattern.</dd></li>
+          <li><dt>One-sided communication (RMA)</dt><dd>Advanced MPI where a rank reads/writes a neighbour&rsquo;s memory window without a matching receive, decoupling the two sides.</dd></li>
+          <li><dt>FPGA</dt><dd>A reconfigurable chip whose logic is tailored to one algorithm, giving high performance-per-watt for fixed, streaming dataflow.</dd></li>
+          <li><dt>Exascale</dt><dd>Systems exceeding 10<sup>18</sup> FLOP/s (Frontier, El&nbsp;Capitan); the current frontier, where energy efficiency and resilience dominate design.</dd></li>
+          <li><dt>Neuromorphic computing</dt><dd>Brain-inspired, event-driven hardware running spiking neural networks with co-located compute and memory for low-energy, sparse workloads.</dd></li>
+          <li><dt>Qubit</dt><dd>A quantum bit holding a superposition of 0 and 1; <em>n</em> qubits span a 2<sup>n</sup>-dimensional state, with entanglement and gates as the operations.</dd></li>
+        </ul>
       </div>
     </section>
 
@@ -752,6 +1097,10 @@
           <div>
             <span class="eyebrow">Bibliography</span>
             <h2>Core &amp; recommended reading</h2>
+            <p class="muted" style="max-width: 74ch">
+              Each title is annotated with what it covers and the sessions it best supports, so the reading list doubles
+              as a study map.
+            </p>
           </div>
         </div>
         <ul class="biblio">
@@ -759,21 +1108,29 @@
             <span class="badge req">Compulsory</span>
             <div class="title">High Performance Computing: Modern Systems and Practices</div>
             <div class="meta">Sterling, T., Anderson, M., Brodowicz, M., &amp; Bell, C. G. (2018). Morgan Kaufmann, Cambridge, MA. ISBN 9780124201583.</div>
+            <p class="annot">The course&rsquo;s spine: a comprehensive, accessible treatment of HPC from supercomputer anatomy and architecture through resource management, I/O and emerging hardware — fundamentals plus practical skills for domain scientists.</p>
+            <span class="used">Sessions 1.1–1.4 · 3.3–3.4 · 5.4 · 6.1–6.3</span>
           </li>
           <li>
             <span class="badge rec">Recommended</span>
             <div class="title">Parallel and High Performance Computing</div>
             <div class="meta">Robey, R., &amp; Zamora, Y. (2021). Manning Publications. ISBN 9781617296468.</div>
+            <p class="annot">The hands-on companion: evaluating hardware, then writing real code with OpenMP, MPI and GPUs (CUDA/OpenACC), including data layout, profiling and a GPU tsunami simulation — the most directly applicable text for the labs and the MiniWeather backends.</p>
+            <span class="used">Sessions 1.5 · 2.1–2.5 · 3.1–3.2 · 4.1–4.2 · 5.1</span>
           </li>
           <li>
             <span class="badge rec">Recommended</span>
             <div class="title">Introduction to High Performance Computing for Scientists and Engineers</div>
-            <div class="meta">Taylor &amp; Francis Group (2019). ISBN 9780367221300.</div>
+            <div class="meta">Hager, G., &amp; Wellein, G. — Taylor &amp; Francis Group (2019). ISBN 9780367221300.</div>
+            <p class="annot">Written by HPC-centre practitioners: the sharpest treatment of single-node performance — architecture, the memory hierarchy, cache behaviour and the optimisation strategies (including the roofline mindset) that drive Module&nbsp;3.</p>
+            <span class="used">Sessions 1.2 · 2.1 · 3.1–3.3</span>
           </li>
           <li>
             <span class="badge rec">Recommended</span>
             <div class="title">High Performance Python: Practical Performant Programming for Humans</div>
-            <div class="meta">Barba, L. A., &amp; Forsyth, G. (2021). O'Reilly Media. ISBN 9781492055020.</div>
+            <div class="meta">Gorelick, M., &amp; Ozsvald, I. — O'Reilly Media (2021). ISBN 9781492055020.</div>
+            <p class="annot">Optimising Python for numerical and data-intensive work — profiling, vectorisation with NumPy, multiprocessing and GPU offload — a gentle entry point to performance thinking and useful for the distributed-ML strand.</p>
+            <span class="used">Sessions 3.1–3.2 · 4.3–4.5</span>
           </li>
         </ul>
       </div>
