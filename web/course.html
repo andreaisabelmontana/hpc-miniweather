@@ -1,0 +1,811 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b3d2e" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <title>Course Structure · High Performance Computing · IE BCSAI</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet" href="./style.css" />
+
+    <style>
+      /* ============================================================
+         Course-structure page — reuses the forest-green design
+         system from style.css, with a few page-specific additions.
+         ============================================================ */
+
+      /* Meta grid */
+      .meta-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+      .meta-cell {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 1rem 1.1rem;
+        box-shadow: var(--shadow-sm);
+      }
+      .meta-cell .k {
+        font-size: 0.66rem; font-weight: 700; text-transform: uppercase;
+        letter-spacing: 0.14em; color: var(--muted); display: block; margin-bottom: 0.3rem;
+      }
+      .meta-cell .v { font-size: 1rem; font-weight: 700; color: var(--fg); }
+      .meta-cell .v.mono { font-family: var(--font-mono); font-weight: 600; font-size: 0.92rem; color: var(--brand); }
+
+      /* Objective cards */
+      .obj-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.1rem;
+      }
+      .obj-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-left: 4px solid var(--accent);
+        border-radius: var(--radius-md);
+        padding: 1.2rem 1.25rem;
+        box-shadow: var(--shadow-sm);
+      }
+      .obj-card h3 { color: var(--brand); margin-bottom: 0.4rem; }
+      .obj-card p { color: var(--muted); font-size: 0.92rem; margin: 0; }
+
+      /* Percentage bars */
+      .bars { display: flex; flex-direction: column; gap: 0.85rem; }
+      .bar-row { display: grid; grid-template-columns: minmax(160px, 230px) 1fr auto; gap: 1rem; align-items: center; }
+      .bar-row .bl { font-weight: 600; font-size: 0.9rem; }
+      .bar-row .bl small { display: block; color: var(--muted); font-weight: 500; font-size: 0.74rem; }
+      .bar-track { background: var(--bg-soft); border: 1px solid var(--border); border-radius: var(--radius-pill); height: 14px; overflow: hidden; }
+      .bar-fill { height: 100%; border-radius: var(--radius-pill); background: linear-gradient(90deg, var(--brand), var(--accent)); }
+      .bar-row .bv { font-family: var(--font-mono); font-weight: 600; color: var(--brand); font-size: 0.9rem; min-width: 3.5em; text-align: right; }
+      @media (max-width: 640px) {
+        .bar-row { grid-template-columns: 1fr auto; }
+        .bar-track { grid-column: 1 / -1; order: 3; }
+      }
+
+      .split { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: start; }
+      @media (max-width: 820px) { .split { grid-template-columns: 1fr; gap: 1.5rem; } }
+      .split h3 { color: var(--brand); margin-bottom: 1rem; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.08em; }
+
+      /* Module + timeline */
+      .module { margin-bottom: 3rem; }
+      .module-head {
+        display: flex; align-items: baseline; gap: 0.9rem; flex-wrap: wrap;
+        padding-bottom: 0.9rem; margin-bottom: 1.5rem;
+        border-bottom: 2px solid var(--brand-soft);
+      }
+      .module-num {
+        font-family: var(--font-mono); font-weight: 600; font-size: 0.78rem;
+        color: #fff; background: var(--brand);
+        padding: 0.3em 0.7em; border-radius: var(--radius-pill);
+        letter-spacing: 0.05em;
+      }
+      .module-head h2 { margin: 0; }
+      .module-intro { color: var(--muted); max-width: 80ch; margin: -0.6rem 0 1.6rem; font-size: 0.95rem; }
+
+      .timeline { position: relative; margin-left: 0; padding-left: 0; }
+      .session {
+        position: relative;
+        display: grid;
+        grid-template-columns: 56px 1fr;
+        gap: 1.1rem;
+        padding-bottom: 1.4rem;
+      }
+      .session:not(:last-child)::before {
+        content: ""; position: absolute;
+        left: 27px; top: 44px; bottom: -4px;
+        width: 2px; background: var(--border);
+      }
+      .session-num {
+        width: 56px; height: 44px;
+        display: grid; place-items: center;
+        background: #fff; border: 1.5px solid var(--brand-soft); color: var(--brand);
+        border-radius: var(--radius-sm);
+        font-family: var(--font-mono); font-weight: 600; font-size: 0.8rem;
+        z-index: 1;
+      }
+      .session-num small { display: block; font-size: 0.55rem; color: var(--muted); letter-spacing: 0.04em; }
+      .session-body {
+        background: #fff; border: 1px solid var(--border);
+        border-radius: var(--radius-md); padding: 1.1rem 1.25rem;
+        box-shadow: var(--shadow-sm);
+      }
+      .session-body .code {
+        font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600;
+        color: var(--muted); letter-spacing: 0.04em;
+      }
+      .session-body h4 { font-size: 1.02rem; margin: 0.15rem 0 0.55rem; color: var(--fg); }
+      .session-obj { color: var(--muted); font-size: 0.9rem; margin: 0 0 0.7rem; }
+      .topics { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.2rem 0 0.7rem; padding: 0; list-style: none; }
+      .topics li {
+        font-size: 0.74rem; background: var(--bg-soft); border: 1px solid var(--border);
+        color: var(--fg-soft); padding: 0.25em 0.65em; border-radius: var(--radius-pill);
+      }
+      .tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+      .tag {
+        font-family: var(--font-mono); font-size: 0.68rem; font-weight: 600;
+        color: var(--brand); background: rgba(11,61,46,0.06);
+        border: 1px solid var(--brand-soft); padding: 0.2em 0.6em; border-radius: 4px;
+      }
+      .tag.async { color: var(--accent-warm); border-color: #f3d9a8; background: rgba(245,158,11,0.08); }
+      .tag.proj  { color: var(--accent-cool); border-color: #b6e6ef; background: rgba(6,182,212,0.08); }
+
+      .mode-pill {
+        font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+        padding: 0.18em 0.55em; border-radius: var(--radius-pill); margin-left: 0.5rem; vertical-align: middle;
+      }
+      .mode-live  { color: var(--brand); background: rgba(11,61,46,0.07); border: 1px solid var(--brand-soft); }
+      .mode-async { color: var(--accent-warm); background: rgba(245,158,11,0.1); border: 1px solid #f3d9a8; }
+
+      .callout {
+        background: rgba(16,185,129,0.06); border: 1px solid var(--brand-soft);
+        border-radius: var(--radius-sm); padding: 0.6rem 0.85rem; margin-top: 0.75rem;
+        font-size: 0.82rem; color: var(--fg-soft);
+      }
+      .callout strong { color: var(--brand); }
+
+      .biblio { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 1rem; }
+      .biblio li { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem 1.2rem; box-shadow: var(--shadow-sm); }
+      .biblio .badge { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; padding: 0.18em 0.55em; border-radius: var(--radius-pill); margin-bottom: 0.45rem; display: inline-block; }
+      .biblio .badge.req { color: #fff; background: var(--brand); }
+      .biblio .badge.rec { color: var(--brand); background: rgba(11,61,46,0.08); border: 1px solid var(--brand-soft); }
+      .biblio .title { font-weight: 700; }
+      .biblio .meta { color: var(--muted); font-size: 0.85rem; }
+
+      .toc-nav a { font-size: 0.92rem; }
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container row">
+        <div class="brand">
+          <span class="mark" aria-hidden="true">
+            <svg viewBox="0 0 32 32" width="22" height="22">
+              <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M5 12 Q12 8 19 12 T 28 12" />
+                <path d="M3 18 Q12 14 21 18 T 30 18" />
+                <path d="M5 24 Q14 20 23 24 T 30 24" />
+              </g>
+            </svg>
+          </span>
+          <span class="wordmark">
+            <span>HPC MiniWeather</span>
+            <small>Course structure</small>
+          </span>
+        </div>
+        <nav class="nav toc-nav">
+          <a href="./index.html">← Visualization</a>
+          <a href="#overview">Overview</a>
+          <a href="#objectives">Objectives</a>
+          <a href="#assessment">Assessment</a>
+          <a href="#program">Program</a>
+          <a href="./SYLLABUS.pdf" target="_blank" rel="noreferrer">Syllabus PDF ↗</a>
+        </nav>
+      </div>
+      <div class="stripe" aria-hidden="true"></div>
+    </header>
+
+    <section class="hero">
+      <div class="container">
+        <span class="eyebrow">IE BCSAI · Computer Science · 2025–26</span>
+        <h1>High Performance <span class="accent">Computing</span></h1>
+        <p class="lede">
+          The full course structure behind this project — six modules, thirty sessions, from the anatomy of a
+          supercomputer to quantum computing. The MiniWeather 7-point stencil solver in this repository is the
+          hands-on companion: a concrete place to see MPI, OpenMP and CUDA from the syllabus actually run.
+        </p>
+        <div class="hero-actions">
+          <a href="#program" class="btn btn-primary">Jump to the 30 sessions</a>
+          <a href="./index.html" class="btn btn-secondary">Open the live simulation</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== OVERVIEW + META ===== -->
+    <section id="overview" class="section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Overview</span>
+            <h2>What this course is</h2>
+            <p class="muted" style="max-width: 74ch">
+              An introduction to high-performance computing with a modern perspective: parallel coding,
+              distributed systems, and applications in machine and deep learning. It covers the evolution and
+              fundamentals of HPC, architectural design, resource management and performance optimization, with
+              heavy emphasis on the parallel-programming essentials — MPI and OpenMP — plus GPU computing and
+              cloud-based HPC. The curriculum builds toward distributed ML/DL at scale and closes on the frontiers
+              of the field: neuromorphic, quantum, and post-exascale computing. Theory alternates with hands-on
+              sessions; the <a href="./index.html">MiniWeather stencil project</a> is one such hands-on artefact.
+            </p>
+          </div>
+        </div>
+
+        <div class="meta-grid">
+          <div class="meta-cell"><span class="k">Program</span><span class="v">BCSAI — Bachelor in Computer Science &amp; AI</span></div>
+          <div class="meta-cell"><span class="k">Course code</span><span class="v mono">HPC-CSAI.3.M.A</span></div>
+          <div class="meta-cell"><span class="k">Area</span><span class="v">Computer Science</span></div>
+          <div class="meta-cell"><span class="k">Sessions</span><span class="v">30</span></div>
+          <div class="meta-cell"><span class="k">Credits</span><span class="v">6.0 ECTS</span></div>
+          <div class="meta-cell"><span class="k">Academic year</span><span class="v">2025–26</span></div>
+          <div class="meta-cell"><span class="k">Degree course</span><span class="v">Third</span></div>
+          <div class="meta-cell"><span class="k">Semester</span><span class="v">1st</span></div>
+          <div class="meta-cell"><span class="k">Category</span><span class="v">Compulsory</span></div>
+          <div class="meta-cell"><span class="k">Language</span><span class="v">English</span></div>
+          <div class="meta-cell"><span class="k">Professor</span><span class="v">Dr. Oscar Diez Gonzalez</span></div>
+          <div class="meta-cell"><span class="k">Contact</span><span class="v mono">odiezg@faculty.ie.edu</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== LEARNING OBJECTIVES ===== -->
+    <section id="objectives" class="section section-muted">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Learning objectives</span>
+            <h2>What you should be able to do</h2>
+            <p class="muted" style="max-width: 74ch">
+              The course is built around six competency themes. By the end, students command HPC hardware and
+              software, the major parallel paradigms (MPI, OpenMP, OpenACC), performance measurement and
+              optimization, and an informed view of where supercomputing is heading.
+            </p>
+          </div>
+        </div>
+
+        <div class="obj-grid">
+          <div class="obj-card">
+            <h3>Foundational knowledge &amp; skills</h3>
+            <p>Explore the evolution, principles and architecture of HPC systems; understand resource management,
+            performance metrics and the dynamics of parallel systems; set up environments and write simple parallel
+            codes, with cloud-based applications in health and neurosciences.</p>
+          </div>
+          <div class="obj-card">
+            <h3>Advanced parallel computing</h3>
+            <p>Master distributed vs. shared-memory concepts, MPI programming and OpenMP multithreading; a special
+            focus on GPU computing and OpenACC/CUDA, integrating MPI with OpenMP for complex simulations such as CFD.</p>
+          </div>
+          <div class="obj-card">
+            <h3>Performance optimization</h3>
+            <p>Optimize code for diverse HPC architectures; use profiling and analysis tools; exploit the memory
+            hierarchy and data locality; leverage high-performance libraries, parallel I/O and data-management strategies.</p>
+          </div>
+          <div class="obj-card">
+            <h3>Parallel algorithms &amp; ML</h3>
+            <p>Design scalable parallel algorithms for big data, high-performance data structures and visualization;
+            understand distributed ML and scalable deep learning, culminating in a distributed-ML implementation project.</p>
+          </div>
+          <div class="obj-card">
+            <h3>Advanced parallel programming</h3>
+            <p>Work with hybrid-computing patterns, advanced MPI and OpenMP, and accelerators such as FPGAs; apply
+            them to climate and terrestrial-systems modelling using hybrid programming approaches.</p>
+          </div>
+          <div class="obj-card">
+            <h3>Frontiers of HPC</h3>
+            <p>Survey neuromorphic and quantum computing and the challenges of post-exascale computing, anticipating
+            the future direction of supercomputing.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== METHODOLOGY + ASSESSMENT ===== -->
+    <section id="assessment" class="section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Methodology &amp; assessment</span>
+            <h2>How time and grades are split</h2>
+            <p class="muted" style="max-width: 74ch">
+              IE's method is collaborative, active and applied. The 150-hour workload (6 ECTS) is distributed across
+              lectures, discussion, in-class and asynchronous exercises, group work and individual study. Grading
+              blends continuous assessment with two exams.
+            </p>
+          </div>
+        </div>
+
+        <div class="split">
+          <div>
+            <h3>Learning activities · 150 h</h3>
+            <div class="bars">
+              <div class="bar-row"><div class="bl">Lectures<small>60.0 hours</small></div><div class="bar-track"><div class="bar-fill" style="width:40%"></div></div><div class="bv">40.0%</div></div>
+              <div class="bar-row"><div class="bl">Exercises / async / field work<small>30.0 hours</small></div><div class="bar-track"><div class="bar-fill" style="width:20%"></div></div><div class="bv">20.0%</div></div>
+              <div class="bar-row"><div class="bl">Individual studying<small>25.0 hours</small></div><div class="bar-track"><div class="bar-fill" style="width:16.7%"></div></div><div class="bv">16.7%</div></div>
+              <div class="bar-row"><div class="bl">Discussions<small>20.0 hours</small></div><div class="bar-track"><div class="bar-fill" style="width:13.3%"></div></div><div class="bv">13.3%</div></div>
+              <div class="bar-row"><div class="bl">Group work<small>15.0 hours</small></div><div class="bar-track"><div class="bar-fill" style="width:10%"></div></div><div class="bv">10.0%</div></div>
+            </div>
+          </div>
+
+          <div>
+            <h3>Assessment weighting</h3>
+            <div class="bars">
+              <div class="bar-row"><div class="bl">Final exam<small>Comprehensive, all modules</small></div><div class="bar-track"><div class="bar-fill" style="width:30%"></div></div><div class="bv">30%</div></div>
+              <div class="bar-row"><div class="bl">Individual work<small>Per-module assignments</small></div><div class="bar-track"><div class="bar-fill" style="width:15%"></div></div><div class="bv">15%</div></div>
+              <div class="bar-row"><div class="bl">Intermediate tests<small>Quizzes + intermediate exam</small></div><div class="bar-track"><div class="bar-fill" style="width:15%"></div></div><div class="bv">15%</div></div>
+              <div class="bar-row"><div class="bl">Workgroups<small>Paper + oral presentation</small></div><div class="bar-track"><div class="bar-fill" style="width:15%"></div></div><div class="bv">15%</div></div>
+              <div class="bar-row"><div class="bl">Mid-course exam<small>First half of the course</small></div><div class="bar-track"><div class="bar-fill" style="width:15%"></div></div><div class="bv">15%</div></div>
+              <div class="bar-row"><div class="bl">Class participation<small>Attendance mandatory</small></div><div class="bar-track"><div class="bar-fill" style="width:10%"></div></div><div class="bv">10%</div></div>
+            </div>
+            <div class="callout">
+              <strong>Attendance:</strong> 80% minimum, or both calls for the year are forfeited.
+              <strong>GenAI policy:</strong> permitted for research, ideation and proofreading with acknowledgement —
+              not for assignments, coding, group submissions or exams.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PROGRAM ===== -->
+    <section id="program" class="section section-muted">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Program · 6 modules · 30 sessions</span>
+            <h2>The full course, session by session</h2>
+            <p class="muted" style="max-width: 74ch">
+              Every numbered session from the syllabus, grouped by module. Live in-person sessions carry a
+              <span class="mode-pill mode-live">Live</span> marker; self-paced ones a
+              <span class="mode-pill mode-async">Async</span> marker. Tags flag the parallel-computing tools each
+              session uses — the same MPI / OpenMP / CUDA stack the
+              <a href="./index.html">MiniWeather stencil project</a> in this repo implements four ways.
+            </p>
+          </div>
+        </div>
+
+        <!-- ===== MODULE 1 ===== -->
+        <div class="module">
+          <div class="module-head">
+            <span class="module-num">Module 1</span>
+            <h2>Foundational knowledge &amp; skills</h2>
+          </div>
+          <p class="module-intro">
+            The groundwork: the evolution, principles and architecture of HPC systems, resource management,
+            performance metrics, cloud-based HPC and a first pass at writing simple parallel codes.
+          </p>
+
+          <div class="timeline">
+            <div class="session">
+              <div class="session-num">01<small>Live</small></div>
+              <div class="session-body">
+                <span class="code">1.1</span>
+                <h4>Evolution and fundamentals of HPC <span class="mode-pill mode-live">Live</span></h4>
+                <p class="session-obj">Lay the groundwork for the whole course: structure, assignments, grading and class dynamics. Core HPC concepts, the anatomy of a supercomputer, key performance indicators and a short history of supercomputing.</p>
+                <ul class="topics"><li>What HPC is</li><li>Supercomputer anatomy</li><li>Key performance indicators</li><li>History of supercomputing</li><li>Assignment methodology</li></ul>
+              </div>
+            </div>
+            <div class="session">
+              <div class="session-num">02<small>Live</small></div>
+              <div class="session-body">
+                <span class="code">1.2</span>
+                <h4>Architectural overview of HPC systems <span class="mode-pill mode-live">Live</span></h4>
+                <p class="session-obj">Demystify the parallel-architecture families through Flynn's taxonomy and the technologies enabling supercomputing today, ending on multiprocessors and heterogeneous computing.</p>
+                <ul class="topics"><li>Flynn's taxonomy</li><li>Parallel architecture families</li><li>Processors</li><li>Multiprocessors</li><li>Heterogeneous computing</li></ul>
+                <div class="callout"><strong>Project link:</strong> the four MiniWeather backends — serial, cache-blocked, CPU-parallel, GPU — are exactly the heterogeneous-architecture spectrum introduced here.</div>
+              </div>
+            </div>
+            <div class="session">
+              <div class="session-num">03<small>Live</small></div>
+              <div class="session-body">
+                <span class="code">1.3</span>
+                <h4>Resource management &amp; performance metrics in parallel systems <span class="mode-pill mode-live">Live</span></h4>
+                <p class="session-obj">Operational HPC: job scheduling strategies, resource allocation and the performance benchmarks that keep parallel environments running efficiently.</p>
+                <ul class="topics"><li>Job scheduling</li><li>Resource allocation</li><li>Performance benchmarks</li><li>Cluster operation</li></ul>
+                <div class="callout"><strong>Project link:</strong> MiniWeather ships SLURM <code>*.sbatch</code> / <code>*.slurm</code> scripts for a Magic Castle cluster — job scheduling in practice.</div>
+              </div>
+            </div>
+            <div class="session">
+              <div class="session-num">04<small>Live</small></div>
+              <div class="session-body">
+                <span class="code">1.4</span>
+                <h4>Introduction to cloud-based HPC and virtualization <span class="mode-pill mode-live">Live</span></h4>
+                <p class="session-obj">How cloud computing reshaped HPC accessibility and scalability: virtualization basics, cloud service models, and the benefits and challenges of cloud HPC in scientific workflows.</p>
+                <ul class="topics"><li>Virtualization</li><li>Cloud service models</li><li>Cloud HPC trade-offs</li><li>Scientific workflows</li></ul>
+              </div>
+            </div>
+            <div class="session">
+              <div class="session-num">05<small>Async</small></div>
+              <div class="session-body">
+                <span class="code">1.5</span>
+                <h4>HPC in health &amp; neurosciences · environment setup &amp; simple parallel codes <span class="mode-pill mode-async">Async</span></h4>
+                <p class="session-obj">Set up HPC environments and write first parallel codes, with examples from health and neuroscience research. Includes the individual and group assignment explanation.</p>
+                <ul class="topics"><li>Environment setup</li><li>First parallel codes</li><li>Health &amp; neuroscience cases</li><li>Assignment briefing</li></ul>
+                <div class="tags"><span class="tag proj">individual + group assignments</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== MODULE 2 ===== -->
+        <div class="module">
+          <div class="module-head">
+            <span class="module-num">Module 2</span>
+            <h2>Parallel computing essentials</h2>
+          </div>
+          <p class="module-intro">
+            Distributed vs. shared memory, MPI and OpenMP, GPU computing with OpenACC/CUDA, and a CFD case study
+            integrating MPI + OpenMP — the heart of the parallel-programming skillset the MiniWeather project exercises.
+          </p>
+
+          <div class="timeline">
+            <div class="session">
+              <div class="session-num">06<small>Live</small></div>
+              <div class="session-body">
+                <span class="code">2.1</span>
+                <h4>Distributed and shared memory concepts <span class="mode-pill mode-live">Live</span></h4>
+                <p class="session-obj">The core architectures of parallel computing: distributed vs. shared memory, their advantages, challenges and suitable scenarios, and how each shapes programming paradigms and performance.</p>
+                <ul class="topics"><li>Shared memory</li><li>Distributed memory</li><li>Programming paradigms</li><li>Performance trade-offs</li></ul>
+                <div class="callout"><strong>Project link:</strong> MiniWeather's halo exchange (<code>halo.cpp</code>) is the distributed-memory boundary problem made concrete.</div>
+              </div>
+            </div>
+            <div class="session">
+              <div class="session-num">07<small>Live</small></div>
+              <div class="session-body">
+                <span class="code">2.2</span>
+                <h4>Deep dive into MPI programming <span class="mode-pill mode-live">Live</span></h4>
+                <p class="session-obj">MPI from basic to intermediate: communication patterns, data distribution and collective operations, with hands-on practice writing and running MPI programs on distributed-memory systems.</p>
+                <ul class="topics"><li>Point-to-point comms</li><li>Collective operations</li><li>Data distribution</li><li>Hands-on MPI</li></ul>
+                <div class="tags"><span class="tag">MPI</span></div>
+                <div class="callout"><strong>Project link:</strong> <code>stencil_cpu_parallel.cpp</code> partitions the 3D grid across MPI ranks and exchanges halo layers each step.</div>
+              </div>
+            </div>
+            <div class="session">
+              <div class="session-num">08<small>Live</small></div>
+              <div class="session-body">
+                <span class="code">2.3</span>
+                <h4>OpenMP for multithreading <span class="mode-pill mode-live">Live</span></h4>
+                <p class="session-obj">Shared-memory parallelism with OpenMP directives: workload distribution, synchronization and memory management for multicore processors, with interactive performance experiments.</p>
+                <ul class="topics"><li>OpenMP directives</li><li>Workload distribution</li><li>Synchronization</li><li>Multicore scaling</li></ul>
+                <div class="tags"><span class="tag">OpenMP</span></div>
+                <div class="callout"><strong>Project link:</strong> the same <code>stencil_cpu_parallel.cpp</code> threads across cores with OpenMP inside each MPI rank.</div>
+              </div>
+            </div>
+            <div class="session">
+              <div class="session-num">09<small>Live</small></div>
+              <div class="session-body">
+                <span class="code">2.4</span>
+                <h4>Introduction to GPU computing · OpenACC/CUDA basics <span class="mode-pill mode-live">Live</span></h4>
+                <p class="session-obj">GPU architecture and programming with CUDA and OpenACC: develop and optimize parallel algorithms that exploit the massive parallelism of GPUs for compute-intensive tasks.</p>
+                <ul class="topics"><li>GPU architecture</li><li>CUDA</li><li>OpenACC</li><li>Massive parallelism</li></ul>
+                <div class="tags"><span class="tag">CUDA</span><span class="tag">OpenACC</span></div>
+                <div class="callout"><strong>Project link:</strong> <code>stencil_gpu.cu</code> maps each grid cell to a CUDA thread with coalesced loads and shared-memory tiling.</div>
+              </div>
+            </div>
+            <div class="session">
+              <div class="session-num">10<small>Async</small></div>
+              <div class="session-body">
+                <span class="code">2.5</span>
+                <h4>Computational Fluid Dynamics (CFD) with HPC · MPI + OpenMP integration <span class="mode-pill mode-async">Async</span></h4>
+                <p class="session-obj">Apply parallel computing to CFD: engage with simulations using MPI and OpenMP together, gaining practical experience in hybrid parallel programming across distributed and shared memory.</p>
+                <ul class="topics"><li>CFD simulations</li><li>Hybrid MPI + OpenMP</li><li>Fluid dynamics</li><li>Scientific computing</li></ul>
+                <div class="tags"><span class="tag">MPI</span><span class="tag">OpenMP</span></div>
+                <div class="callout"><strong>Project link:</strong> MiniWeather is itself a stencil-based fluid/heat solver — the closest analogue to this CFD case in the repo.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== MODULE 3 ===== -->
+        <div class="module">
+          <div class="module-head">
+            <span class="module-num">Module 3</span>
+            <h2>Performance optimization in HPC</h2>
+          </div>
+          <p class="module-intro">
+            Optimizing code for HPC architectures: profiling and analysis, checkpointing, the memory hierarchy and
+            data locality, high-performance libraries, parallel I/O and parallel filesystems, with cluster performance tuning.
+          </p>
+
+          <div class="timeline">
+            <div class="session">
+              <div class="session-num">11<small>Live</small></div>
+              <div class="session-body">
+                <span class="code">3.1</span>
+                <h4>Optimizing code for HPC architectures <span class="mode-pill mode-live">Live</span></h4>
+                <p class="session-obj">Strategies to fully exploit HPC architectures: code profiling, algorithmic choices and data-structure optimization, with loop unrolling, vectorization, memory-access patterns and cache utilization.</p>
+                <ul class="topics"><li>Loop unrolling</li><li>Vectorization</li><li>Memory-access patterns</li><li>Cache utilization</li></ul>
+                <div class="callout"><strong>Project link:</strong> <code>stencil_cpu_blocked.cpp</code> tiles the loops so each block fits in L1/L2 — same FLOPs, far fewer cache misses.</div>
+              </div>
+            </div>
+            <div class="session">
+              <div class="session-num">12<small>Live</small></div>
+              <div class="session-body">
+                <span class="code">3.2</span>
+                <h4>Profiling &amp; performance analysis tools · checkpointing <span class="mode-pill mode-live">Live</span></h4>
+                <p class="session-obj">Tools and methodologies for profiling CPU and memory performance, plus checkpointing for fault tolerance in long-running computations — identifying and mitigating bottlenecks.</p>
+                <ul class="topics"><li>CPU/memory profiling</li><li>Bottleneck analysis</li><li>Checkpointing</li><li>Fault tolerance</li></ul>
+                <div class="callout"><strong>Project link:</strong> MiniWeather's <code>timer.cpp</code> and <code>profiling/</code> directory are where each backend's runtime is measured.</div>
+              </div>
+            </div>
+            <div class="session">
+              <div class="session-num">13<small>Live</small></div>
+              <div class="session-body">
+                <span class="code">3.3</span>
+                <h4>Memory hierarchy &amp; data locality · high-performance libraries <span class="mode-pill mode-live">Live</span></h4>
+                <p class="session-obj">Principles of the memory hierarchy from registers to disk, strategies to maximize data locality, and the high-performance scientific libraries that provide optimized math primitives.</p>
+                <ul class="topics"><li>Memory hierarchy</li><li>Data locality</li><li>Scientific libraries</li><li>Optimized primitives</li></ul>
+              </div>
+            </div>
+            <div class="session">
+              <div class="session-num">14<small>Live</small></div>
+              <div class="session-body">
+                <span class="code">3.4</span>
+                <h4>Parallel I/O &amp; high-throughput data management · parallel filesystems <span class="mode-pill mode-live">Live</span></h4>
+                <p class="session-obj">Parallel I/O challenges and solutions: parallel filesystem architecture, best practices for scalable I/O, and managing large datasets in distributed HPC environments.</p>
+                <ul class="topics"><li>Parallel I/O</li><li>Parallel filesystems</li><li>Scalable I/O</li><li>Large datasets</li></ul>
+              </div>
+            </div>
+            <div class="session">
+              <div class="session-num">15<small>Async</small></div>
+              <div class="session-body">
+                <span class="code">3.5</span>
+                <h4>Molecular systems &amp; material sciences · performance tuning on clusters <span class="mode-pill mode-async">Async</span></h4>
+                <p class="session-obj">Apply optimization in a real scientific context: case studies in computational chemistry and physics, with assignments tuning simulation-code performance on HPC clusters.</p>
+                <ul class="topics"><li>Computational chemistry</li><li>Material sciences</li><li>Cluster tuning</li><li>Simulation codes</li></ul>
+                <div class="tags"><span class="tag proj">tuning assignment</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== MODULE 4 ===== -->
+        <div class="module">
+          <div class="module-head">
+            <span class="module-num">Module 4</span>
+            <h2>Parallel algorithms &amp; machine learning</h2>
+          </div>
+          <p class="module-intro">
+            Scalable parallel algorithms for big data, high-performance data structures and visualization, and the
+            fundamentals of distributed ML and deep learning at scale — culminating in a distributed-ML project.
+          </p>
+
+          <div class="timeline">
+            <div class="session">
+              <div class="session-num">16<small>Live</small></div>
+              <div class="session-body">
+                <span class="code">4.1</span>
+                <h4>Scalable parallel algorithms for Big Data · MapReduce <span class="mode-pill mode-live">Live</span></h4>
+                <p class="session-obj">Designing algorithms that scale across many processing units, centred on the MapReduce model for distributed data processing, with real-world big-data case studies.</p>
+                <ul class="topics"><li>Scalable algorithms</li><li>MapReduce</li><li>Distributed data</li><li>Big data</li></ul>
+              </div>
+            </div>
+            <div class="session">
+              <div class="session-num">17<small>Live</small></div>
+              <div class="session-body">
+                <span class="code">4.2</span>
+                <h4>Data structures for high performance · visualization <span class="mode-pill mode-live">Live</span></h4>
+                <p class="session-obj">Data structures that maximize efficiency in parallel and distributed environments, plus the principles and tools of scientific visualization for interpreting complex HPC datasets.</p>
+                <ul class="topics"><li>HP data structures</li><li>Scientific visualization</li><li>Parallel efficiency</li><li>Data interpretation</li></ul>
+                <div class="callout"><strong>Project link:</strong> the MiniWeather web page itself is the visualization layer — 2D slices, 3D isosurfaces and an animated GIF of the field.</div>
+              </div>
+            </div>
+            <div class="session">
+              <div class="session-num">18<small>Live</small></div>
+              <div class="session-body">
+                <span class="code">4.3</span>
+                <h4>Fundamentals of distributed machine learning <span class="mode-pill mode-live">Live</span></h4>
+                <p class="session-obj">Foundations of distributed ML: data parallelism, model parallelism and strategies for scaling ML across multiple nodes, plus the frameworks and libraries that enable it.</p>
+                <ul class="topics"><li>Data parallelism</li><li>Model parallelism</li><li>Multi-node scaling</li><li>ML frameworks</li></ul>
+              </div>
+            </div>
+            <div class="session">
+              <div class="session-num">19<small>Live</small></div>
+              <div class="session-body">
+                <span class="code">4.4</span>
+                <h4>Deep learning at scale <span class="mode-pill mode-live">Live</span></h4>
+                <p class="session-obj">Scaling deep-learning models on HPC: training large neural networks with gradient accumulation, batch-size scaling and accelerators such as GPUs and TPUs.</p>
+                <ul class="topics"><li>Large neural networks</li><li>Gradient accumulation</li><li>Batch-size scaling</li><li>GPUs &amp; TPUs</li></ul>
+              </div>
+            </div>
+            <div class="session">
+              <div class="session-num">20<small>Async</small></div>
+              <div class="session-body">
+                <span class="code">4.5</span>
+                <h4>Implementing a distributed ML model <span class="mode-pill mode-async">Async</span></h4>
+                <p class="session-obj">Apply distributed-ML and deep-learning-at-scale concepts in a hands-on implementation of a distributed machine-learning model.</p>
+                <ul class="topics"><li>Distributed ML</li><li>Hands-on implementation</li><li>Scaling in practice</li></ul>
+                <div class="tags"><span class="tag proj">distributed-ML project</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== MODULE 5 ===== -->
+        <div class="module">
+          <div class="module-head">
+            <span class="module-num">Module 5</span>
+            <h2>Advanced parallel programming</h2>
+          </div>
+          <p class="module-intro">
+            Hybrid-computing patterns, advanced MPI and OpenMP, and accelerators like FPGAs — applied to climate and
+            terrestrial-systems modelling, the domain MiniWeather itself belongs to.
+          </p>
+
+          <div class="timeline">
+            <div class="session">
+              <div class="session-num">21<small>Live</small></div>
+              <div class="session-body">
+                <span class="code">5.1</span>
+                <h4>Patterns in hybrid computing <span class="mode-pill mode-live">Live</span></h4>
+                <p class="session-obj">Where multiple parallel paradigms coexist in one application: common hybrid patterns integrating MPI with OpenMP and GPU computing, shown through case studies.</p>
+                <ul class="topics"><li>Hybrid patterns</li><li>MPI + OpenMP + GPU</li><li>Paradigm integration</li></ul>
+                <div class="tags"><span class="tag">MPI</span><span class="tag">OpenMP</span><span class="tag">CUDA</span></div>
+                <div class="callout"><strong>Project link:</strong> MiniWeather's four backends together demonstrate this hybrid stack — MPI across nodes, OpenMP across cores, CUDA on the GPU.</div>
+              </div>
+            </div>
+            <div class="session">
+              <div class="session-num">22<small>Live</small></div>
+              <div class="session-body">
+                <span class="code">5.2</span>
+                <h4>Advanced MPI <span class="mode-pill mode-live">Live</span></h4>
+                <p class="session-obj">Beyond the basics: dynamic process management, one-sided communications and persistent communication requests for optimizing large-scale parallel applications.</p>
+                <ul class="topics"><li>Dynamic process mgmt</li><li>One-sided comms</li><li>Persistent requests</li></ul>
+                <div class="tags"><span class="tag">MPI</span></div>
+              </div>
+            </div>
+            <div class="session">
+              <div class="session-num">23<small>Live</small></div>
+              <div class="session-body">
+                <span class="code">5.3</span>
+                <h4>Advanced OpenMP <span class="mode-pill mode-live">Live</span></h4>
+                <p class="session-obj">Task-based parallelism, SIMD directives and device-memory management for GPU accelerators — enhancing the performance and scalability of shared-memory applications.</p>
+                <ul class="topics"><li>Task parallelism</li><li>SIMD directives</li><li>Device memory</li></ul>
+                <div class="tags"><span class="tag">OpenMP</span></div>
+              </div>
+            </div>
+            <div class="session">
+              <div class="session-num">24<small>Live</small></div>
+              <div class="session-body">
+                <span class="code">5.4</span>
+                <h4>Accelerators: FPGAs and specialized processors <span class="mode-pill mode-live">Live</span></h4>
+                <p class="session-obj">FPGA architecture and programming models, plus other specialized processors in HPC, and how to select the right accelerator for a given workload.</p>
+                <ul class="topics"><li>FPGAs</li><li>Programming models</li><li>Specialized processors</li><li>Accelerator selection</li></ul>
+              </div>
+            </div>
+            <div class="session">
+              <div class="session-num">25<small>Async</small></div>
+              <div class="session-body">
+                <span class="code">5.5</span>
+                <h4>Climate &amp; terrestrial systems modelling · hybrid MPI/OpenMP <span class="mode-pill mode-async">Async</span></h4>
+                <p class="session-obj">Apply advanced parallel programming to climate and terrestrial-systems modelling, integrating MPI and OpenMP and possibly GPU accelerators or FPGAs to enhance performance.</p>
+                <ul class="topics"><li>Climate modelling</li><li>Terrestrial systems</li><li>Hybrid MPI/OpenMP</li><li>Accelerators</li></ul>
+                <div class="tags"><span class="tag">MPI</span><span class="tag">OpenMP</span><span class="tag proj">modelling project</span></div>
+                <div class="callout"><strong>Project link:</strong> this is precisely MiniWeather's domain — a mini-weather (climate/atmosphere) stencil solver built with hybrid MPI + OpenMP + CUDA.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== MODULE 6 ===== -->
+        <div class="module">
+          <div class="module-head">
+            <span class="module-num">Module 6</span>
+            <h2>Frontiers of HPC</h2>
+          </div>
+          <p class="module-intro">
+            The future: neuromorphic and quantum computing, the post-exascale era, a pre-exam review, and the final
+            exam with group-project presentations.
+          </p>
+
+          <div class="timeline">
+            <div class="session">
+              <div class="session-num">26<small>Live</small></div>
+              <div class="session-body">
+                <span class="code">6.1</span>
+                <h4>Neuromorphic computing <span class="mode-pill mode-live">Live</span></h4>
+                <p class="session-obj">Brain-inspired computing: the design and application of neuromorphic systems that mimic neural architectures for efficient sensory processing and machine learning, with their potential and limits.</p>
+                <ul class="topics"><li>Neuromorphic systems</li><li>Neural architectures</li><li>Efficiency</li><li>Limitations</li></ul>
+              </div>
+            </div>
+            <div class="session">
+              <div class="session-num">27<small>Live</small></div>
+              <div class="session-body">
+                <span class="code">6.2</span>
+                <h4>Quantum computing fundamentals &amp; applications <span class="mode-pill mode-live">Live</span></h4>
+                <p class="session-obj">The basics of quantum computing — qubits, quantum gates, entanglement — plus quantum algorithms and their applications in cryptography, optimization and simulation.</p>
+                <ul class="topics"><li>Qubits</li><li>Quantum gates</li><li>Entanglement</li><li>Quantum algorithms</li></ul>
+              </div>
+            </div>
+            <div class="session">
+              <div class="session-num">28<small>Live</small></div>
+              <div class="session-body">
+                <span class="code">6.3</span>
+                <h4>Advanced computing: toward the post-exascale era <span class="mode-pill mode-live">Live</span></h4>
+                <p class="session-obj">Beyond exascale: emerging architectures, software paradigms and the integration of AI and big-data analytics into HPC workflows, and the considerations driving the next generation.</p>
+                <ul class="topics"><li>Post-exascale</li><li>Emerging architectures</li><li>AI + HPC convergence</li><li>Future paradigms</li></ul>
+              </div>
+            </div>
+            <div class="session">
+              <div class="session-num">29<small>Live</small></div>
+              <div class="session-body">
+                <span class="code">6.4</span>
+                <h4>Review session · pre-exam <span class="mode-pill mode-live">Live</span></h4>
+                <p class="session-obj">Synthesize the course: clarify doubts, revisit challenging topics and consolidate knowledge across all modules in preparation for the final examination.</p>
+                <ul class="topics"><li>Concept review</li><li>Doubt clarification</li><li>Synthesis</li><li>Exam prep</li></ul>
+              </div>
+            </div>
+            <div class="session">
+              <div class="session-num">30<small>Live</small></div>
+              <div class="session-body">
+                <span class="code">—</span>
+                <h4>Exam &amp; group assignments <span class="mode-pill mode-live">Live</span></h4>
+                <p class="session-obj">The final session: a written exam plus presentation of group projects, where students demonstrate mastery through the design, implementation and optimization of HPC solutions for real-world problems.</p>
+                <ul class="topics"><li>Final written exam</li><li>Group presentations</li><li>End-to-end HPC solutions</li></ul>
+                <div class="tags"><span class="tag proj">group project + final exam</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== BIBLIOGRAPHY ===== -->
+    <section id="bibliography" class="section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Bibliography</span>
+            <h2>Core &amp; recommended reading</h2>
+          </div>
+        </div>
+        <ul class="biblio">
+          <li>
+            <span class="badge req">Compulsory</span>
+            <div class="title">High Performance Computing: Modern Systems and Practices</div>
+            <div class="meta">Sterling, T., Anderson, M., Brodowicz, M., &amp; Bell, C. G. (2018). Morgan Kaufmann, Cambridge, MA. ISBN 9780124201583.</div>
+          </li>
+          <li>
+            <span class="badge rec">Recommended</span>
+            <div class="title">Parallel and High Performance Computing</div>
+            <div class="meta">Robey, R., &amp; Zamora, Y. (2021). Manning Publications. ISBN 9781617296468.</div>
+          </li>
+          <li>
+            <span class="badge rec">Recommended</span>
+            <div class="title">Introduction to High Performance Computing for Scientists and Engineers</div>
+            <div class="meta">Taylor &amp; Francis Group (2019). ISBN 9780367221300.</div>
+          </li>
+          <li>
+            <span class="badge rec">Recommended</span>
+            <div class="title">High Performance Python: Practical Performant Programming for Humans</div>
+            <div class="meta">Barba, L. A., &amp; Forsyth, G. (2021). O'Reilly Media. ISBN 9781492055020.</div>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <div class="stripe" aria-hidden="true"></div>
+      <div class="container">
+        <div class="row" style="align-items:flex-start; gap:2rem; flex-wrap:wrap; padding:2.5rem 0 1.5rem">
+          <div style="flex:1; min-width:240px">
+            <strong>High Performance Computing — course structure</strong>
+            <p class="muted" style="margin-top:0.5rem">
+              Syllabus-driven companion page to the HPC MiniWeather project.
+              Course: HPC-CSAI.3.M.A · IE BCSAI · 6 ECTS · Prof. Oscar Diez Gonzalez.
+            </p>
+          </div>
+          <div style="flex:1; min-width:200px">
+            <strong>This repo</strong>
+            <ul style="list-style:none; padding:0; margin:0.5rem 0 0">
+              <li><a href="./index.html">Interactive visualization</a></li>
+              <li><a href="./source-overview.html">Source overview</a></li>
+              <li><a href="./SYLLABUS.pdf" target="_blank" rel="noreferrer">Full syllabus (PDF)</a></li>
+              <li><a href="https://github.com/andreaisabelmontana/hpc-miniweather" target="_blank" rel="noreferrer">GitHub repository</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="legal">
+          © <span id="yr"></span> IE School of Science &amp; Technology — Class project · page content derived from the official course syllabus.
+        </div>
+      </div>
+    </footer>
+
+    <script>document.getElementById('yr').textContent = new Date().getFullYear();</script>
+  </body>
+</html>
