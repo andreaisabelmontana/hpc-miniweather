@@ -1,0 +1,1172 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b3d2e" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <title>Worked Example · Parallelizing MiniWeather · HPC · IE BCSAI</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet" href="./style.css" />
+
+    <!-- KaTeX for the scaling-law math (graceful: plain-text fallbacks remain readable) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous" />
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+
+    <style>
+      /* ============================================================
+         Worked-example project page — reuses the forest-green design
+         system from style.css, with page-specific additions for the
+         long-form prose, code blocks, tables and step pipeline.
+         ============================================================ */
+
+      .prose { max-width: 78ch; }
+      .prose h2 { margin-top: 0; }
+      .prose h3 { margin: 2rem 0 0.6rem; color: var(--brand); font-size: 1.05rem; }
+      .prose p { color: var(--fg-soft); }
+      .prose ul, .prose ol { color: var(--fg-soft); padding-left: 1.25rem; }
+      .prose li { margin: 0.3rem 0; }
+      .prose code { background: var(--bg-soft); padding: 0.1em 0.4em; border-radius: 4px; color: var(--brand-strong); }
+
+      /* Two-column wrapper used in several sections */
+      .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; }
+      @media (max-width: 860px) { .grid2 { grid-template-columns: 1fr; gap: 1.25rem; } }
+
+      /* Section anchoring so the sticky header doesn't hide titles */
+      .anchor-section { scroll-margin-top: 90px; }
+
+      /* ===== Code blocks ===== */
+      .codecard {
+        background: #07101a;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        box-shadow: var(--shadow-md);
+        margin: 1.1rem 0 1.4rem;
+      }
+      .codecard .codehead {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.55rem 0.95rem;
+        background: #0c1a2b;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+      }
+      .codecard .codehead .fname {
+        font-family: var(--font-mono); font-size: 0.78rem; font-weight: 600;
+        color: #cfe6db;
+      }
+      .codecard .codehead .badge {
+        font-size: 0.62rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+        color: #07101a; background: var(--accent);
+        padding: 0.2em 0.6em; border-radius: var(--radius-pill);
+      }
+      .codecard pre {
+        margin: 0; padding: 1rem 1.1rem; overflow-x: auto;
+        font-family: var(--font-mono); font-size: 0.8rem; line-height: 1.5;
+        color: #e6edf3;
+      }
+      .codecard pre code { background: none; padding: 0; color: inherit; }
+      /* token-ish colouring via spans we emit by hand */
+      .codecard .cm  { color: #6b8a7a; font-style: italic; }   /* comment */
+      .codecard .kw  { color: #f0a868; }                       /* keyword / directive */
+      .codecard .ty  { color: #7ed0b7; }                       /* type */
+      .codecard .fn  { color: #74b3ff; }                       /* function */
+      .codecard .str { color: #d6a4ff; }                       /* string */
+
+      /* ===== Pipeline (serial → omp → mpi → cuda) ===== */
+      .pipeline { display: flex; align-items: stretch; gap: 0.6rem; flex-wrap: wrap; margin: 1.5rem 0 0.5rem; }
+      .pstep {
+        flex: 1; min-width: 150px;
+        background: #fff; border: 1px solid var(--border);
+        border-top: 4px solid var(--dot, var(--brand));
+        border-radius: var(--radius-md); padding: 0.9rem 1rem;
+        box-shadow: var(--shadow-sm);
+      }
+      .pstep .pn { font-family: var(--font-mono); font-size: 0.68rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+      .pstep strong { display: block; color: var(--brand); margin: 0.2rem 0 0.3rem; }
+      .pstep small { color: var(--muted); font-size: 0.78rem; line-height: 1.4; display: block; }
+      .pstep .mono { color: var(--brand-strong); font-size: 0.72rem; }
+      .parrow { align-self: center; color: var(--border-strong); font-weight: 700; }
+      @media (max-width: 720px) { .parrow { display: none; } }
+
+      /* ===== Tables ===== */
+      .tbl-wrap { overflow-x: auto; margin: 1.2rem 0; }
+      table.data {
+        width: 100%; border-collapse: collapse; font-size: 0.88rem;
+        background: #fff; border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden;
+      }
+      table.data th, table.data td { padding: 0.6em 0.85em; text-align: right; border-bottom: 1px solid var(--border); }
+      table.data th:first-child, table.data td:first-child { text-align: left; }
+      table.data thead th { background: var(--brand); color: #fff; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: none; }
+      table.data tbody tr:last-child td { border-bottom: none; }
+      table.data tbody tr:nth-child(even) { background: var(--bg-soft); }
+      table.data td.mono, table.data .mono { font-family: var(--font-mono); color: var(--brand-strong); }
+      table.data caption { caption-side: bottom; color: var(--muted); font-size: 0.78rem; padding-top: 0.6rem; text-align: left; }
+
+      /* ===== Callouts ===== */
+      .callout {
+        border: 1px solid var(--border); border-left: 4px solid var(--accent-cool);
+        background: var(--bg-soft); border-radius: var(--radius-md);
+        padding: 1rem 1.2rem; margin: 1.3rem 0; font-size: 0.92rem; color: var(--fg-soft);
+      }
+      .callout.warn { border-left-color: var(--accent-warm); }
+      .callout.brand { border-left-color: var(--brand); }
+      .callout strong { color: var(--brand); }
+      .callout p:last-child { margin-bottom: 0; }
+
+      .math-block { background: var(--bg-soft); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0.9rem 1.1rem; margin: 1rem 0; overflow-x: auto; }
+      .math-block .lab { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); font-weight: 700; display: block; margin-bottom: 0.4rem; }
+
+      /* Outcome mapping cards */
+      .lo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+      .lo-card {
+        background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--brand);
+        border-radius: var(--radius-md); padding: 1rem 1.15rem; box-shadow: var(--shadow-sm);
+      }
+      .lo-card .ses { font-family: var(--font-mono); font-size: 0.68rem; font-weight: 600; color: #fff; background: var(--brand); padding: 0.18em 0.55em; border-radius: var(--radius-pill); }
+      .lo-card h4 { margin: 0.6rem 0 0.35rem; color: var(--brand); font-size: 0.96rem; }
+      .lo-card p { margin: 0; color: var(--muted); font-size: 0.85rem; }
+
+      /* On-page sub-nav (table of contents) */
+      .toc {
+        display: flex; flex-wrap: wrap; gap: 0.5rem 0.4rem;
+        margin: 1.5rem 0 0;
+      }
+      .toc a {
+        font-size: 0.8rem; font-weight: 600; color: var(--brand);
+        background: rgba(11,61,46,0.06); border: 1px solid var(--brand-soft);
+        padding: 0.32em 0.75em; border-radius: var(--radius-pill);
+      }
+      .toc a:hover { background: var(--brand); color: #fff; border-bottom-color: var(--brand); }
+
+      .stack-tags { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 0.5rem; }
+      .stack-tags span {
+        font-family: var(--font-mono); font-size: 0.74rem; font-weight: 600;
+        background: var(--bg-soft); border: 1px solid var(--border-strong);
+        color: var(--brand-strong); padding: 0.25em 0.7em; border-radius: var(--radius-sm);
+      }
+
+      .refs { font-size: 0.9rem; color: var(--fg-soft); }
+      .refs li { margin: 0.5rem 0; }
+    </style>
+  </head>
+  <body>
+    <!-- ===================== HEADER ===================== -->
+    <header class="site-header">
+      <div class="container row">
+        <a href="./index.html" class="brand" style="border:none">
+          <span class="mark" aria-hidden="true">
+            <svg viewBox="0 0 32 32" width="22" height="22">
+              <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M5 12 Q12 8 19 12 T 28 12" />
+                <path d="M3 18 Q12 14 21 18 T 30 18" />
+                <path d="M5 24 Q14 20 23 24 T 30 24" />
+              </g>
+            </svg>
+          </span>
+          <span class="wordmark">
+            <span>HPC MiniWeather</span>
+            <small>Worked example · parallelization &amp; scaling</small>
+          </span>
+        </a>
+        <nav class="nav">
+          <a href="./index.html">Visualization</a>
+          <a href="./course.html">Course structure</a>
+          <a href="#serial">Serial</a>
+          <a href="#omp">OpenMP</a>
+          <a href="#mpi">MPI</a>
+          <a href="#cuda">CUDA</a>
+          <a href="#scaling">Scaling</a>
+          <a href="./SYLLABUS.pdf" target="_blank" rel="noreferrer">Syllabus PDF ↗</a>
+        </nav>
+      </div>
+      <div class="stripe" aria-hidden="true"></div>
+    </header>
+
+    <!-- ===================== HERO ===================== -->
+    <section class="hero" style="padding-bottom:2rem">
+      <div class="container">
+        <span class="eyebrow">IE BCSAI · High-Performance Computing · Worked Example</span>
+        <h1>Parallelizing <span class="accent">MiniWeather</span>:<br />serial → OpenMP → MPI → CUDA</h1>
+        <p class="lede">
+          One algorithm — a 3D 7-point stencil — taken end to end across every parallel paradigm in the
+          course. We start from a textbook triple loop, add shared-memory threads, distribute it across nodes
+          with MPI halo exchange, move it onto a GPU, and finish with a strong/weak scaling study grounded in
+          Amdahl's and Gustafson's laws and a roofline estimate. Every code excerpt below is taken from the
+          real backends in <code class="mono">source/src/</code>.
+        </p>
+        <div class="hero-actions">
+          <a href="#overview" class="btn btn-primary">Start the walkthrough</a>
+          <a href="https://github.com/andreaisabelmontana/hpc-miniweather/tree/main/source/src" class="btn btn-secondary" target="_blank" rel="noreferrer">Browse the backends ↗</a>
+        </div>
+        <nav class="toc" aria-label="On this page">
+          <a href="#overview">1 · Overview</a>
+          <a href="#problem">2 · The problem</a>
+          <a href="#serial">3 · Serial</a>
+          <a href="#omp">4 · OpenMP</a>
+          <a href="#mpi">5 · MPI</a>
+          <a href="#cuda">6 · CUDA</a>
+          <a href="#scaling">7 · Scaling study</a>
+          <a href="#build">8 · Build &amp; run</a>
+          <a href="#outcomes">9 · Outcomes</a>
+          <a href="#extensions">10 · Extensions</a>
+          <a href="#refs">11 · References</a>
+        </nav>
+      </div>
+    </section>
+
+    <!-- ===================== 1 · OVERVIEW ===================== -->
+    <section id="overview" class="section anchor-section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">1 · Overview</span>
+            <h2>What this project does, and why</h2>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="prose">
+            <p>
+              MiniWeather is a deliberately small proxy for a climate / weather kernel: a single stencil sweep
+              over a regular 3D grid, iterated for many timesteps. It is small enough to read in one sitting,
+              but it stresses exactly the things that matter at scale — memory bandwidth, cache locality,
+              inter-node communication, and accelerator offload.
+            </p>
+            <p>
+              The <strong>goal</strong> of this worked example is to take that <em>one</em> kernel and implement
+              it four ways, measuring the speedup at each step. The physics never changes; only the way the
+              work is mapped onto hardware does. That makes it the perfect vehicle for the parallel-programming
+              arc of the syllabus: shared memory (OpenMP), distributed memory (MPI), and accelerators (CUDA),
+              culminating in a quantitative scaling analysis.
+            </p>
+            <h3>Course sessions exercised</h3>
+            <ul>
+              <li><strong>2.1</strong> Distributed vs. shared memory — the conceptual split this whole project rests on.</li>
+              <li><strong>2.2</strong> MPI programming — domain decomposition + non-blocking halo exchange.</li>
+              <li><strong>2.3</strong> OpenMP — <code>parallel for</code>, <code>collapse</code>, <code>simd</code>.</li>
+              <li><strong>2.4</strong> GPU computing / CUDA — the stencil as a kernel with a 3D grid of threads.</li>
+              <li><strong>3.1–3.3</strong> Optimization — cache blocking, data locality, the roofline model.</li>
+              <li><strong>5.1 / 5.5</strong> Hybrid MPI+OpenMP and climate-systems modelling (the extensions).</li>
+            </ul>
+          </div>
+
+          <div>
+            <div class="callout brand">
+              <strong>The stencil, in one line.</strong>
+              <p style="margin-top:0.5rem">
+                Each cell is replaced by the average of its six face-neighbours plus four times itself, all
+                divided by ten — a stable, diffusion-flavoured 7-point operator. Read the live 2D analogue on the
+                <a href="./index.html#sim">visualization page</a>.
+              </p>
+            </div>
+
+            <h3 class="prose" style="margin-top:1.5rem">Stack</h3>
+            <div class="stack-tags">
+              <span>C++17</span><span>CMake</span><span>OpenMP</span><span>MPI (OpenMPI 4.1)</span>
+              <span>CUDA / HIP</span><span>SLURM</span><span>SIMD</span>
+            </div>
+
+            <div class="callout" style="margin-top:1.25rem">
+              <strong>Where the code lives.</strong>
+              <p style="margin-top:0.5rem">
+                <code>src/stencil_cpu_serial.cpp</code> · <code>src/stencil_cpu_blocked.cpp</code> ·
+                <code>src/stencil_cpu_parallel.cpp</code> · <code>src/halo.cpp</code> ·
+                <code>src/stencil_gpu.cu</code>. Driver: <code>src/main.cpp</code>; dispatch via
+                <code>--backend {serial|blocked|parallel|gpu}</code>.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- pipeline -->
+        <div class="pipeline">
+          <div class="pstep" style="--dot:#9CA3AF">
+            <span class="pn">Step 1</span><strong>Serial</strong>
+            <small>One thread, triple loop. The reference for correctness and the denominator for every speedup.</small>
+            <span class="mono">stencil_cpu_serial.cpp</span>
+          </div>
+          <span class="parrow">→</span>
+          <div class="pstep" style="--dot:#F59E0B">
+            <span class="pn">Step 2</span><strong>OpenMP</strong>
+            <small>Threads across cores with <code>collapse(2)</code> + <code>simd</code>. Same node, more lanes.</small>
+            <span class="mono">stencil_cpu_parallel.cpp</span>
+          </div>
+          <span class="parrow">→</span>
+          <div class="pstep" style="--dot:#06B6D4">
+            <span class="pn">Step 3</span><strong>MPI</strong>
+            <small>Slab decomposition in z; non-blocking halo exchange between rank neighbours.</small>
+            <span class="mono">halo.cpp</span>
+          </div>
+          <span class="parrow">→</span>
+          <div class="pstep" style="--dot:#10B981">
+            <span class="pn">Step 4</span><strong>CUDA</strong>
+            <small>One cell ↦ one thread; 8×8×8 blocks; optional shared-memory tiling.</small>
+            <span class="mono">stencil_gpu.cu</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 2 · THE PROBLEM ===================== -->
+    <section id="problem" class="section section-muted anchor-section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">2 · The MiniWeather problem</span>
+            <h2>A diffusion stencil and how we cut it up</h2>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="prose">
+            <p>
+              The continuous model is a scalar diffusion (heat-equation-like) PDE on a 3D domain:
+            </p>
+            <div class="math-block">
+              <span class="lab">Continuous PDE</span>
+              <div>$$\frac{\partial u}{\partial t} = \alpha\,\nabla^2 u
+                = \alpha\!\left(\frac{\partial^2 u}{\partial x^2}
+                + \frac{\partial^2 u}{\partial y^2}
+                + \frac{\partial^2 u}{\partial z^2}\right)$$</div>
+            </div>
+            <p>
+              Discretising the Laplacian with second-order central differences on a uniform grid gives the
+              classic <strong>7-point stencil</strong>: the new value of a cell depends on itself and its six
+              axis-aligned neighbours. The repository uses a specific stable weighting — centre weight 4, each
+              neighbour weight 1, normalised by 10:
+            </p>
+            <div class="math-block">
+              <span class="lab">Discrete update (the kernel)</span>
+              <div>$$u^{\,n+1}_{i,j,k} = \frac{1}{10}\Big(
+                u^{\,n}_{i\pm1,j,k} + u^{\,n}_{i,j\pm1,k} + u^{\,n}_{i,j,k\pm1}
+                + 4\,u^{\,n}_{i,j,k}\Big)$$</div>
+            </div>
+            <p>
+              The six neighbour terms plus the weighted centre are exactly the seven array reads you will see
+              repeated verbatim in every backend below. The grid is stored as a flat
+              <code>std::vector&lt;double&gt;</code> with a one-cell <em>halo</em> (ghost layer) on every face,
+              so the index of cell <code>(i,j,k)</code> is
+              <code>i·ny·nz + j·nz + k</code>.
+            </p>
+          </div>
+
+          <div>
+            <h3 class="prose">Domain decomposition</h3>
+            <p class="prose">
+              For the distributed runs the global grid is sliced into <em>slabs</em> along the
+              <code>z</code> axis — one contiguous slab per MPI rank. Each rank owns
+              <code>local_nz = nz / size</code> planes (the remainder is spread over the first few ranks), plus
+              two ghost planes it does not own but needs to read:
+            </p>
+            <div class="codecard">
+              <div class="codehead"><span class="fname">src/stencil_cpu_parallel.cpp</span><span class="badge">real</span></div>
+<pre><code><span class="cm">// Domain decomposition in z-dimension</span>
+<span class="ty">int</span> global_nz = cli.nz;
+<span class="ty">int</span> local_nz  = global_nz / size;
+<span class="ty">int</span> remainder = global_nz % size;
+<span class="kw">if</span> (rank &lt; remainder) local_nz += <span class="str">1</span>;
+
+<span class="cm">// Starting z-index this rank is responsible for</span>
+<span class="ty">int</span> z_start = <span class="str">0</span>;
+<span class="kw">for</span> (<span class="ty">int</span> r = <span class="str">0</span>; r &lt; rank; ++r) {
+    <span class="ty">int</span> prev = global_nz / size;
+    <span class="kw">if</span> (r &lt; remainder) prev += <span class="str">1</span>;
+    z_start += prev;
+}
+
+<span class="cm">// Local arrays carry a 1-cell halo on every face</span>
+<span class="ty">int</span> nx = cli.nx + <span class="str">2</span>, ny = cli.ny + <span class="str">2</span>, nz = local_nz + <span class="str">2</span>;</code></pre>
+            </div>
+            <p class="prose">
+              Slicing along <code>z</code> (the fastest-varying / contiguous axis here) means each rank's halo is
+              a single <code>nx × ny</code> plane that is already contiguous-ish to pack — which is exactly what
+              makes the halo exchange in section&nbsp;5 cheap.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 3 · SERIAL ===================== -->
+    <section id="serial" class="section anchor-section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">3 · Serial baseline</span>
+            <h2>The reference implementation</h2>
+          </div>
+        </div>
+
+        <div class="prose" style="max-width:80ch">
+          <p>
+            Everything is measured against this. A single thread sweeps the interior of the grid, applies the
+            7-point operator into a <code>next</code> buffer, then ping-pong swaps <code>current</code> and
+            <code>next</code> for the following timestep. Double-buffering avoids read-after-write hazards: we
+            never overwrite a cell another cell still needs to read this step.
+          </p>
+        </div>
+
+        <div class="codecard">
+          <div class="codehead"><span class="fname">src/stencil_cpu_serial.cpp · run_stencil_cpu_serial()</span><span class="badge">real</span></div>
+<pre><code><span class="cm">// Time stepping loop</span>
+<span class="kw">for</span> (<span class="ty">int</span> step = <span class="str">0</span>; step &lt; cli.steps; ++step) {
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="str">1</span>; i &lt;= cli.nx; ++i) {
+        <span class="kw">for</span> (<span class="ty">int</span> j = <span class="str">1</span>; j &lt;= cli.ny; ++j) {
+            <span class="kw">for</span> (<span class="ty">int</span> k = <span class="str">1</span>; k &lt;= cli.nz; ++k) {
+                <span class="ty">int</span> idx = i * ny * nz + j * nz + k;
+
+                <span class="cm">// 7-Point Stencil</span>
+                next[idx] = (current[(i-<span class="str">1</span>) * ny * nz + j * nz + k] +
+                             current[(i+<span class="str">1</span>) * ny * nz + j * nz + k] +
+                             current[i * ny * nz + (j-<span class="str">1</span>) * nz + k] +
+                             current[i * ny * nz + (j+<span class="str">1</span>) * nz + k] +
+                             current[i * ny * nz + j * nz + (k-<span class="str">1</span>)] +
+                             current[i * ny * nz + j * nz + (k+<span class="str">1</span>)] +
+                             current[idx] * <span class="str">4.0</span>) / <span class="str">10.0</span>;
+            }
+        }
+    }
+    <span class="fn">std::swap</span>(current, next);   <span class="cm">// ping-pong buffers</span>
+}</code></pre>
+        </div>
+
+        <div class="callout">
+          <strong>The headline metric is GLUPS</strong> — billions of grid-point updates per second:
+          <span class="mono">glups = nx·ny·nz·steps / time / 1e9</span>. Because every backend computes the
+          identical operator, GLUPS is directly comparable across all four, and a built-in
+          <em>constant-field test</em> (a uniform field must stay uniform under this operator) catches
+          correctness regressions.
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 4 · OPENMP ===================== -->
+    <section id="omp" class="section section-muted anchor-section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">4 · Shared memory · OpenMP</span>
+            <h2>Threads across the cores of one node</h2>
+          </div>
+        </div>
+
+        <div class="prose" style="max-width:80ch">
+          <p>
+            The first parallelization keeps the algorithm identical but spreads iterations of the outer loops
+            across threads. Two pragmas do almost all the work: <code>#pragma omp parallel for collapse(2)</code>
+            fuses the <code>i</code> and <code>j</code> loops into one big iteration space so OpenMP has enough
+            independent work to balance across many cores, and <code>#pragma omp simd</code> tells the compiler
+            the innermost <code>k</code> loop is vectorizable — consecutive <code>k</code> values are adjacent in
+            memory, so the loads and the FMA can use SIMD lanes.
+          </p>
+        </div>
+
+        <div class="codecard">
+          <div class="codehead"><span class="fname">src/stencil_cpu_parallel.cpp · interior compute</span><span class="badge">real</span></div>
+<pre><code><span class="kw">#ifdef MINIW_OMP</span>
+<span class="kw">#pragma omp parallel for collapse(2)</span>
+<span class="kw">#endif</span>
+<span class="kw">for</span> (<span class="ty">int</span> i = <span class="str">1</span>; i &lt;= cli.nx; ++i) {
+    <span class="kw">for</span> (<span class="ty">int</span> j = <span class="str">1</span>; j &lt;= cli.ny; ++j) {
+<span class="kw">#ifdef MINIW_OMP</span>
+<span class="kw">#pragma omp simd</span>
+<span class="kw">#endif</span>
+        <span class="kw">for</span> (<span class="ty">int</span> k = <span class="str">1</span>; k &lt;= local_nz; ++k) {
+            <span class="ty">int</span> idx = i * ny * nz + j * nz + k;
+
+            <span class="cm">// 7-Point Stencil (identical math to the serial version)</span>
+            next[idx] = (current[(i-<span class="str">1</span>) * ny * nz + j * nz + k] +
+                         current[(i+<span class="str">1</span>) * ny * nz + j * nz + k] +
+                         current[i * ny * nz + (j-<span class="str">1</span>) * nz + k] +
+                         current[i * ny * nz + (j+<span class="str">1</span>) * nz + k] +
+                         current[i * ny * nz + j * nz + (k-<span class="str">1</span>)] +
+                         current[i * ny * nz + j * nz + (k+<span class="str">1</span>)] +
+                         current[idx] * <span class="str">4.0</span>) / <span class="str">10.0</span>;
+        }
+    }
+}</code></pre>
+        </div>
+
+        <div class="grid2">
+          <div class="prose">
+            <h3>Why <code>collapse(2)</code> and not <code>collapse(3)</code>?</h3>
+            <p>
+              Collapsing only the outer two loops leaves the contiguous <code>k</code> loop intact for the
+              vectorizer and the hardware prefetcher. Collapsing all three would shatter that locality and force
+              a more expensive index computation per iteration. Threads get whole <code>(i,j)</code> columns —
+              big, cache-friendly chunks of work.
+            </p>
+          </div>
+          <div class="prose">
+            <h3>The cache-blocked cousin</h3>
+            <p>
+              <code>stencil_cpu_blocked.cpp</code> goes further: it tiles the <code>i,j</code> plane into
+              <code>Ti × Tj</code> blocks sized for L1/L2, adds <code>schedule(dynamic)</code> for load balance,
+              software-prefetches <code>k+4</code> ahead, and supports temporal blocking
+              (<code>--tsteps</code>). Same FLOPs, fewer cache misses — the section 3.1/3.3 optimization story made
+              concrete.
+            </p>
+          </div>
+        </div>
+
+        <div class="codecard">
+          <div class="codehead"><span class="fname">src/stencil_cpu_blocked.cpp · tiled + prefetched loop nest</span><span class="badge">real</span></div>
+<pre><code><span class="kw">#ifdef MINIW_OMP</span>
+<span class="kw">#pragma omp parallel for collapse(2) schedule(dynamic)</span>
+<span class="kw">#endif</span>
+<span class="kw">for</span> (<span class="ty">int</span> ii = <span class="str">1</span>; ii &lt;= nx; ii += Ti) {
+    <span class="kw">for</span> (<span class="ty">int</span> jj = <span class="str">1</span>; jj &lt;= ny; jj += Tj) {
+        <span class="ty">int</span> i_end = <span class="fn">std::min</span>(ii + Ti - <span class="str">1</span>, nx);
+        <span class="ty">int</span> j_end = <span class="fn">std::min</span>(jj + Tj - <span class="str">1</span>, ny);
+        <span class="kw">for</span> (<span class="ty">int</span> i = ii; i &lt;= i_end; ++i)
+          <span class="kw">for</span> (<span class="ty">int</span> j = jj; j &lt;= j_end; ++j)
+<span class="kw">#ifdef MINIW_OMP</span>
+<span class="kw">#pragma omp simd</span>
+<span class="kw">#endif</span>
+            <span class="kw">for</span> (<span class="ty">int</span> k = <span class="str">1</span>; k &lt;= local_nz; ++k) {
+                <span class="kw">if</span> (k + <span class="str">4</span> &lt; NZ) <span class="fn">__builtin_prefetch</span>(&amp;current[idx(i, j, k + <span class="str">4</span>)], <span class="str">0</span>, <span class="str">1</span>);
+                next[idx(i, j, k)] =
+                    ( current[idx(i-<span class="str">1</span>, j, k)] + current[idx(i+<span class="str">1</span>, j, k)] +
+                      current[idx(i, j-<span class="str">1</span>, k)] + current[idx(i, j+<span class="str">1</span>, k)] +
+                      current[idx(i, j, k-<span class="str">1</span>)] + current[idx(i, j, k+<span class="str">1</span>)] +
+                      current[idx(i, j, k)] * <span class="str">4.0</span> ) / <span class="str">10.0</span>;
+            }
+    }
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 5 · MPI ===================== -->
+    <section id="mpi" class="section anchor-section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">5 · Distributed memory · MPI</span>
+            <h2>Across nodes, with a halo exchange</h2>
+          </div>
+        </div>
+
+        <div class="prose" style="max-width:80ch">
+          <p>
+            OpenMP runs out of road at the edge of a node: it cannot reach memory on another machine. MPI
+            crosses that boundary by giving each <em>rank</em> its own slab (section 2) and having neighbouring
+            ranks swap the one plane of cells they share. That plane is the <strong>halo</strong> (a.k.a. ghost
+            cells): rank <code>r</code> cannot compute the stencil on its boundary plane without the adjacent
+            plane that physically lives on rank <code>r±1</code>.
+          </p>
+          <p>
+            The exchange is split into a non-blocking <em>start</em> (post all sends/receives) and a
+            <em>finish</em> (wait + unpack). Posting <code>MPI_Irecv</code>/<code>MPI_Isend</code> first lets the
+            network move data while the rank computes its interior — communication/computation overlap, the
+            single most important MPI optimization for stencils.
+          </p>
+        </div>
+
+        <div class="codecard">
+          <div class="codehead"><span class="fname">src/halo.cpp · HaloExchange::start_exchange()</span><span class="badge">real</span></div>
+<pre><code><span class="kw">void</span> HaloExchange::<span class="fn">start_exchange</span>(<span class="ty">std::vector&lt;double&gt;</span>&amp; field) {
+    <span class="cm">// Pack the first owned z-plane into a contiguous send buffer</span>
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="str">0</span>; i &lt; nx; ++i)
+        <span class="kw">for</span> (<span class="ty">int</span> j = <span class="str">0</span>; j &lt; ny; ++j)
+            send_left[i * ny + j]  = field[i * ny * nz + j * nz + <span class="str">1</span>];
+
+    <span class="cm">// Pack the last owned z-plane</span>
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="str">0</span>; i &lt; nx; ++i)
+        <span class="kw">for</span> (<span class="ty">int</span> j = <span class="str">0</span>; j &lt; ny; ++j)
+            send_right[i * ny + j] = field[i * ny * nz + j * nz + (nz-<span class="str">2</span>)];
+
+    <span class="cm">// Post non-blocking recvs first, then matching sends (tags pair up neighbours)</span>
+    <span class="fn">MPI_Irecv</span>(recv_left.data(),  nx*ny, MPI_DOUBLE, left_rank,  <span class="str">0</span>, MPI_COMM_WORLD, &amp;recv_requests[<span class="str">0</span>]);
+    <span class="fn">MPI_Irecv</span>(recv_right.data(), nx*ny, MPI_DOUBLE, right_rank, <span class="str">1</span>, MPI_COMM_WORLD, &amp;recv_requests[<span class="str">1</span>]);
+    <span class="fn">MPI_Isend</span>(send_left.data(),  nx*ny, MPI_DOUBLE, left_rank,  <span class="str">1</span>, MPI_COMM_WORLD, &amp;send_requests[<span class="str">0</span>]);
+    <span class="fn">MPI_Isend</span>(send_right.data(), nx*ny, MPI_DOUBLE, right_rank, <span class="str">0</span>, MPI_COMM_WORLD, &amp;send_requests[<span class="str">1</span>]);
+}</code></pre>
+        </div>
+
+        <div class="codecard">
+          <div class="codehead"><span class="fname">src/halo.cpp · HaloExchange::finish_exchange()</span><span class="badge">real</span></div>
+<pre><code><span class="kw">void</span> HaloExchange::<span class="fn">finish_exchange</span>(<span class="ty">std::vector&lt;double&gt;</span>&amp; field) {
+    <span class="fn">MPI_Waitall</span>(<span class="str">2</span>, recv_requests, MPI_STATUSES_IGNORE);
+
+    <span class="cm">// Unpack received planes into the ghost layers (z = 0 and z = nz-1)</span>
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="str">0</span>; i &lt; nx; ++i)
+        <span class="kw">for</span> (<span class="ty">int</span> j = <span class="str">0</span>; j &lt; ny; ++j)
+            field[i * ny * nz + j * nz + <span class="str">0</span>]        = recv_left[i * ny + j];
+
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="str">0</span>; i &lt; nx; ++i)
+        <span class="kw">for</span> (<span class="ty">int</span> j = <span class="str">0</span>; j &lt; ny; ++j)
+            field[i * ny * nz + j * nz + (nz-<span class="str">1</span>)] = recv_right[i * ny + j];
+
+    <span class="fn">MPI_Waitall</span>(<span class="str">2</span>, send_requests, MPI_STATUSES_IGNORE);
+}</code></pre>
+        </div>
+
+        <div class="grid2">
+          <div class="prose">
+            <h3>Note the crossed tags</h3>
+            <p>
+              The send to <code>left_rank</code> uses tag <code>1</code> while the receive <em>from</em>
+              <code>left_rank</code> uses tag <code>0</code> — and vice-versa on the right. This tag pairing is
+              what lets a rank's "right send" match its neighbour's "left receive" unambiguously, even though
+              every rank runs the identical code. Neighbours are computed with wrap-around
+              (<code>(rank ± 1 + size) % size</code>), i.e. a periodic 1D process topology.
+            </p>
+          </div>
+          <div class="prose">
+            <h3>How it slots into the timestep</h3>
+            <p>
+              The driver calls <code>start_exchange()</code>, computes the interior (which only needs owned
+              cells), then calls <code>finish_exchange()</code> before the next step needs the halos. The same
+              <code>HaloExchange</code> object is reused by both the plain parallel and the cache-blocked CPU
+              backends, and the loop separately times interior vs. halo so you can see communication cost grow
+              with rank count.
+            </p>
+          </div>
+        </div>
+
+        <div class="callout brand">
+          <strong>Distributed + shared, together.</strong> Because the OpenMP pragmas and the MPI calls are
+          guarded by independent <code>MINIW_OMP</code> / <code>MINIW_MPI</code> macros, the very same source
+          compiles to a <em>hybrid</em> build: <em>R</em> ranks (one per node/socket) each running <em>T</em>
+          OpenMP threads. That is the section-5.1 hybrid pattern, with no code rewrite.
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 6 · CUDA ===================== -->
+    <section id="cuda" class="section section-muted anchor-section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">6 · Accelerators · CUDA</span>
+            <h2>One cell, one thread</h2>
+          </div>
+        </div>
+
+        <div class="prose" style="max-width:80ch">
+          <p>
+            On the GPU the loop nest disappears entirely. Instead of one thread walking millions of cells, we
+            launch millions of threads, each responsible for a single cell. The triple loop becomes three lines
+            of index arithmetic derived from the thread's position in the grid. The <code>+ 1</code> skips the
+            halo, and a bounds check handles grids that don't divide evenly by the block size.
+          </p>
+        </div>
+
+        <div class="codecard">
+          <div class="codehead"><span class="fname">src/stencil_gpu.cu · __global__ stencil_kernel</span><span class="badge">real</span></div>
+<pre><code><span class="kw">__global__</span> <span class="kw">void</span> <span class="fn">stencil_kernel</span>(
+    <span class="kw">const</span> <span class="ty">double</span>* __restrict__ current,
+    <span class="ty">double</span>* __restrict__ next,
+    <span class="ty">int</span> nx, <span class="ty">int</span> ny, <span class="ty">int</span> nz,
+    <span class="ty">int</span> stride_y, <span class="ty">int</span> stride_z)
+{
+    <span class="cm">// 3D thread indexing (+1 skips the halo)</span>
+    <span class="ty">int</span> i = blockIdx.x * blockDim.x + threadIdx.x + <span class="str">1</span>;
+    <span class="ty">int</span> j = blockIdx.y * blockDim.y + threadIdx.y + <span class="str">1</span>;
+    <span class="ty">int</span> k = blockIdx.z * blockDim.z + threadIdx.z + <span class="str">1</span>;
+
+    <span class="kw">if</span> (i &lt;= nx &amp;&amp; j &lt;= ny &amp;&amp; k &lt;= nz) {
+        <span class="ty">int</span> idx = i * stride_y * stride_z + j * stride_z + k;
+        next[idx] = (
+            current[(i-<span class="str">1</span>) * stride_y * stride_z + j * stride_z + k] +
+            current[(i+<span class="str">1</span>) * stride_y * stride_z + j * stride_z + k] +
+            current[i * stride_y * stride_z + (j-<span class="str">1</span>) * stride_z + k] +
+            current[i * stride_y * stride_z + (j+<span class="str">1</span>) * stride_z + k] +
+            current[i * stride_y * stride_z + j * stride_z + (k-<span class="str">1</span>)] +
+            current[i * stride_y * stride_z + j * stride_z + (k+<span class="str">1</span>)] +
+            current[idx] * <span class="str">4.0</span>
+        ) / <span class="str">10.0</span>;
+    }
+}</code></pre>
+        </div>
+
+        <div class="grid2">
+          <div class="prose">
+            <h3>The launch configuration</h3>
+            <p>
+              Threads are grouped into <code>8×8×8 = 512</code>-thread blocks; the grid is sized to cover the
+              whole domain with a ceiling division. Each step launches the kernel, synchronises, and pointer-swaps
+              the device buffers — the GPU analogue of the serial ping-pong.
+            </p>
+          </div>
+          <div class="prose">
+            <h3>Coalescing &amp; the shared-memory variant</h3>
+            <p>
+              Because <code>k</code> is the contiguous axis and maps to <code>threadIdx.x</code>'s fastest
+              dimension, neighbouring threads read neighbouring addresses — <em>coalesced</em> global loads. A
+              second kernel, <code>stencil_kernel_shared</code>, stages an <code>10³</code> tile (8³ interior + 1
+              halo each side) into <code>__shared__</code> memory so the six neighbour reads hit on-chip memory
+              instead of re-reading global DRAM.
+            </p>
+          </div>
+        </div>
+
+        <div class="codecard">
+          <div class="codehead"><span class="fname">src/stencil_gpu.cu · grid/block launch + step loop</span><span class="badge">real</span></div>
+<pre><code><span class="cm">// Kernel configuration</span>
+<span class="ty">dim3</span> block(<span class="str">8</span>, <span class="str">8</span>, <span class="str">8</span>);
+<span class="ty">dim3</span> grid(
+    (nx + block.x - <span class="str">1</span>) / block.x,
+    (ny + block.y - <span class="str">1</span>) / block.y,
+    (local_nz + block.z - <span class="str">1</span>) / block.z
+);
+
+<span class="kw">for</span> (<span class="ty">int</span> step = <span class="str">0</span>; step &lt; cli.steps; ++step) {
+    stencil_kernel&lt;&lt;&lt;grid, block&gt;&gt;&gt;(
+        d_current, d_next, nx, ny, local_nz, NY, NZ);
+    <span class="fn">cudaDeviceSynchronize</span>();
+    <span class="fn">std::swap</span>(d_current, d_next);   <span class="cm">// swap device pointers</span>
+}</code></pre>
+        </div>
+
+        <div class="callout warn">
+          <strong>Honest about the code.</strong> The committed CUDA backend selects a device per rank
+          (<code>cudaSetDevice(rank % device_count)</code>) so it is multi-GPU-<em>ready</em>, but the
+          per-step inter-GPU halo exchange is still marked <code>// TODO</code>. Single-GPU and single-node
+          multi-GPU-without-exchange runs are correct today; closing that TODO is the first extension below.
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 7 · SCALING STUDY ===================== -->
+    <section id="scaling" class="section anchor-section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">7 · Scaling study</span>
+            <h2>How fast does it actually get?</h2>
+          </div>
+        </div>
+
+        <div class="prose" style="max-width:80ch">
+          <p>
+            With all four backends in hand we run a sweep and reduce it to two questions. <strong>Strong
+            scaling:</strong> fix the problem (here <code>64³</code> for 100 steps) and add workers — does it get
+            faster? <strong>Weak scaling:</strong> grow the problem in lockstep with the workers — does each step
+            stay the same length? The numbers below are <em>representative</em> figures used to illustrate the
+            method (the repo ships the harness — <code>run.sh scale</code> and the <code>submit_scale.slurm</code>
+            script — for collecting your own on the cluster; <code>RESULTS.md</code> is the template you fill in).
+          </p>
+        </div>
+
+        <h3 class="prose">Strong scaling — fixed 64³, 100 steps</h3>
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead>
+              <tr><th>Configuration</th><th>Workers</th><th>Time (s)</th><th>Speedup S</th><th>Efficiency E</th><th>GLUPS</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Serial baseline</td><td class="mono">1</td><td class="mono">12.80</td><td class="mono">1.00×</td><td class="mono">100%</td><td class="mono">0.21</td></tr>
+              <tr><td>OpenMP (1 node)</td><td class="mono">4 thr</td><td class="mono">3.55</td><td class="mono">3.61×</td><td class="mono">90%</td><td class="mono">0.74</td></tr>
+              <tr><td>OpenMP (1 node)</td><td class="mono">8 thr</td><td class="mono">2.05</td><td class="mono">6.24×</td><td class="mono">78%</td><td class="mono">1.28</td></tr>
+              <tr><td>MPI (1 rank/node)</td><td class="mono">4 ranks</td><td class="mono">3.70</td><td class="mono">3.46×</td><td class="mono">86%</td><td class="mono">0.71</td></tr>
+              <tr><td>MPI</td><td class="mono">8 ranks</td><td class="mono">2.15</td><td class="mono">5.95×</td><td class="mono">74%</td><td class="mono">1.22</td></tr>
+              <tr><td>MPI</td><td class="mono">16 ranks</td><td class="mono">1.45</td><td class="mono">8.83×</td><td class="mono">55%</td><td class="mono">1.81</td></tr>
+              <tr><td>CUDA (1 GPU)</td><td class="mono">1 GPU</td><td class="mono">0.42</td><td class="mono">30.5×</td><td class="mono">—</td><td class="mono">6.25</td></tr>
+            </tbody>
+            <caption>Representative single-node / small-cluster figures (FP64). Efficiency E = S / N. The 16-rank
+            row shows the classic strong-scaling roll-off: halo surface grows relative to interior volume, so
+            communication starts to dominate.</caption>
+          </table>
+        </div>
+
+        <h3 class="prose">Weak scaling — 64³ <em>per rank</em></h3>
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead>
+              <tr><th>Ranks</th><th>Global grid</th><th>Time/step (ms)</th><th>Weak efficiency</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="mono">1</td><td class="mono">64³</td><td class="mono">36.0</td><td class="mono">100%</td></tr>
+              <tr><td class="mono">2</td><td class="mono">64²×128</td><td class="mono">37.4</td><td class="mono">96%</td></tr>
+              <tr><td class="mono">4</td><td class="mono">64²×256</td><td class="mono">38.9</td><td class="mono">93%</td></tr>
+              <tr><td class="mono">8</td><td class="mono">64²×512</td><td class="mono">40.6</td><td class="mono">89%</td></tr>
+            </tbody>
+            <caption>Weak scaling holds up far better than strong scaling: per-rank work is constant, and only the
+            fixed-size halo plane is exchanged, so time/step rises only slowly.</caption>
+          </table>
+        </div>
+
+        <div class="grid2">
+          <div class="prose">
+            <h3>Amdahl's law — the strong-scaling ceiling</h3>
+            <p>
+              If a fraction <em>p</em> of the work is parallelizable and <em>(1−p)</em> is inherently serial,
+              the best speedup on <em>N</em> workers is bounded:
+            </p>
+            <div class="math-block">
+              <span class="lab">Amdahl</span>
+              <div>$$S(N) = \frac{1}{(1-p) + \dfrac{p}{N}} \;\xrightarrow[N\to\infty]{}\; \frac{1}{1-p}$$</div>
+            </div>
+            <p>
+              Back-solving from the 8-thread OpenMP row (S ≈ 6.24 at N = 8) gives <em>p</em> ≈ 0.96 — about 4%
+              serial overhead (allocation, the constant-field check, loop ramp-up). That caps the <em>maximum</em>
+              attainable speedup at roughly <span class="mono">1/(1−0.96) ≈ 25×</span> no matter how many cores
+              you add. This is why strong scaling alone always eventually stalls.
+            </p>
+          </div>
+          <div class="prose">
+            <h3>Gustafson's law — the weak-scaling escape</h3>
+            <p>
+              Gustafson reframes the question: on a bigger machine you usually solve a <em>bigger</em> problem,
+              not the same one faster. The scaled speedup grows linearly with <em>N</em>:
+            </p>
+            <div class="math-block">
+              <span class="lab">Gustafson</span>
+              <div>$$S_{\text{scaled}}(N) = N - (1-p)\,(N-1)$$</div>
+            </div>
+            <p>
+              With the same <em>p</em> ≈ 0.96, eight ranks of weak scaling give a scaled speedup of about
+              <span class="mono">8 − 0.04·7 ≈ 7.7</span> — comfortably above what Amdahl permits for the
+              <em>fixed</em>-size problem. The 89% weak-efficiency row is the experimental shadow of exactly this
+              law: MiniWeather is a weak-scaling success story, which is precisely why real climate codes scale to
+              thousands of nodes by refining the mesh.
+            </p>
+          </div>
+        </div>
+
+        <h3 class="prose">Roofline &amp; arithmetic intensity</h3>
+        <div class="prose" style="max-width:82ch">
+          <p>
+            Whether any of this is even worth optimizing depends on whether the kernel is compute-bound or
+            memory-bound. The 7-point stencil does <strong>8 floating-point operations</strong> per cell update
+            (6 adds + 1 multiply + 1 divide). In the streaming limit it must read the centre and write the
+            result — <strong>2 doubles = 16 bytes</strong> of unavoidable DRAM traffic per update (neighbour reads
+            are ideally served from cache). Arithmetic intensity is therefore:
+          </p>
+          <div class="math-block">
+            <span class="lab">Arithmetic intensity</span>
+            <div>$$I = \frac{\text{FLOPs}}{\text{bytes}} = \frac{8}{16} = 0.5\ \text{FLOP/byte}$$</div>
+          </div>
+          <p>
+            On the roofline model, performance is <span class="mono">min(peak FLOP/s, I × bandwidth)</span>. At
+            I = 0.5, even a modest 100 GB/s memory system caps the kernel at ≈ 50 GFLOP/s — far below any modern
+            CPU/GPU's peak FLOP rate. <strong>MiniWeather is firmly memory-bandwidth-bound.</strong> Three
+            consequences follow directly, and explain every optimization above:
+          </p>
+          <ul>
+            <li><strong>Bandwidth, not FLOPs, is the budget</strong> — so cache blocking and SIMD (which raise the
+              <em>effective</em> intensity by reusing neighbour loads from cache) help; squeezing the arithmetic
+              would not.</li>
+            <li><strong>The GPU wins big</strong> — its &gt;1 TB/s HBM bandwidth lifts the roofline by an order of
+              magnitude, which is why the CUDA row is ~30× the serial CPU.</li>
+            <li><strong>Halo exchange must overlap compute</strong> — added bytes on the wire eat directly into the
+              same bandwidth budget that already limits us.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 8 · BUILD & RUN ===================== -->
+    <section id="build" class="section section-muted anchor-section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">8 · Build &amp; run</span>
+            <h2>From clone to cluster job</h2>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="prose">
+            <h3>Configure &amp; build (CMake)</h3>
+            <p>
+              Feature backends are toggled at configure time, so a single binary <code>miniweather</code> can
+              embed serial, OpenMP, MPI and (optionally) CUDA paths:
+            </p>
+            <div class="codecard">
+              <div class="codehead"><span class="fname">build</span><span class="badge">cmd</span></div>
+<pre><code><span class="cm"># one-shot helper (loads modules, configures, builds)</span>
+./run.sh build
+
+<span class="cm"># or by hand:</span>
+mkdir build &amp;&amp; cd build
+cmake .. -DENABLE_MPI=ON -DENABLE_OPENMP=ON -DENABLE_CUDA=OFF
+make -j$(nproc)</code></pre>
+            </div>
+
+            <h3>Run locally</h3>
+            <div class="codecard">
+              <div class="codehead"><span class="fname">run</span><span class="badge">cmd</span></div>
+<pre><code><span class="cm"># serial reference</span>
+./build/miniweather --backend serial -nx 64 -ny 64 -nz 64 -t 100
+
+<span class="cm"># OpenMP: 8 threads on one node</span>
+OMP_NUM_THREADS=8 ./build/miniweather --backend parallel -nx 64 -ny 64 -nz 64 -t 100
+
+<span class="cm"># MPI: 4 ranks</span>
+mpirun -np 4 ./build/miniweather --backend parallel -nx 64 -ny 64 -nz 64 -t 100
+
+<span class="cm"># GPU (requires -DENABLE_CUDA=ON build)</span>
+./build/miniweather --backend gpu -nx 128 -ny 128 -nz 128 -t 100</code></pre>
+            </div>
+          </div>
+
+          <div class="prose">
+            <h3>Submit to SLURM</h3>
+            <p>
+              The repo ships ready-made batch scripts under <code>scripts/</code> and <code>slurm/</code>
+              (serial, parallel, GPU, strong- and weak-scaling sweeps). The scaling submit script builds on
+              first run and then launches across nodes with <code>srun</code>:
+            </p>
+            <div class="codecard">
+              <div class="codehead"><span class="fname">scripts/submit_scale.slurm</span><span class="badge">real</span></div>
+<pre><code><span class="cm">#!/bin/bash</span>
+<span class="kw">#SBATCH</span> -J miniweather-scaling-cpu
+<span class="kw">#SBATCH</span> --output=results/scaling%j.out
+<span class="kw">#SBATCH</span> -N 4
+<span class="kw">#SBATCH</span> --ntasks=4
+<span class="kw">#SBATCH</span> --mem-per-cpu=512M
+<span class="kw">#SBATCH</span> -t 00:15:00
+
+cd $SLURM_SUBMIT_DIR
+module purge
+module load openmpi/4.1 gcc/12 cmake
+
+<span class="kw">if</span> [ ! -f build/miniweather ]; <span class="kw">then</span>
+    mkdir -p build &amp;&amp; cd build
+    cmake .. -DENABLE_MPI=ON -DENABLE_OPENMP=ON
+    make -j
+    cd ..
+<span class="kw">fi</span>
+
+echo <span class="str">"Test 3: 16 ranks (4 nodes)"</span>
+srun -N 4 -n 16 ./build/miniweather --backend parallel -nx 64 -ny 64 -nz 64 -t 10</code></pre>
+            </div>
+
+            <div class="callout">
+              <strong>Submit it.</strong>
+              <p style="margin-top:0.4rem; font-family:var(--font-mono); font-size:0.82rem">
+                sbatch scripts/submit_scale.slurm<br />
+                sbatch scripts/submit_gpu.slurm<br />
+                ./run.sh scale&nbsp;&nbsp;<span style="font-family:var(--font-sans)">— sweeps 1·2·4·8 ranks, writes a CSV</span>
+              </p>
+            </div>
+            <p style="font-size:0.88rem">
+              The resulting CSVs feed <code>scripts/plot_results.py</code> and
+              <code>scripts/visualize_weather.py</code>, which render the speedup tables and the field images you
+              see on the <a href="./index.html#outputs">visualization page</a>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 9 · OUTCOMES ===================== -->
+    <section id="outcomes" class="section anchor-section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">9 · Mapping to learning outcomes</span>
+            <h2>Where each step lands in the syllabus</h2>
+          </div>
+        </div>
+        <p class="prose" style="max-width:80ch">
+          Every stage of this project is a concrete instance of a specific course session. The full outline lives
+          on the <a href="./course.html#program">course-structure page</a>; the mapping below shows the through-line.
+        </p>
+
+        <div class="lo-grid">
+          <div class="lo-card">
+            <span class="ses">Session 2.1</span>
+            <h4>Distributed vs. shared memory</h4>
+            <p>The OpenMP-vs-MPI split is the entire spine of the project: one address space vs. message passing.</p>
+          </div>
+          <div class="lo-card">
+            <span class="ses">Session 2.2</span>
+            <h4>MPI programming</h4>
+            <p>Slab decomposition, non-blocking <code>Isend/Irecv</code>, <code>Waitall</code>, tag pairing, periodic neighbours.</p>
+          </div>
+          <div class="lo-card">
+            <span class="ses">Session 2.3</span>
+            <h4>OpenMP for multithreading</h4>
+            <p><code>parallel for collapse(2)</code>, <code>simd</code>, <code>schedule(dynamic)</code> — and why each was chosen.</p>
+          </div>
+          <div class="lo-card">
+            <span class="ses">Session 2.4</span>
+            <h4>GPU computing / CUDA</h4>
+            <p>The loop nest becomes a 3D thread grid; coalesced loads and a shared-memory tiling variant.</p>
+          </div>
+          <div class="lo-card">
+            <span class="ses">Session 3.1 / 3.3</span>
+            <h4>Optimization &amp; memory hierarchy</h4>
+            <p>Cache blocking, prefetch, data locality, and the roofline / arithmetic-intensity analysis.</p>
+          </div>
+          <div class="lo-card">
+            <span class="ses">Session 3.2</span>
+            <h4>Profiling &amp; performance analysis</h4>
+            <p>Per-phase timers (interior vs. halo), GLUPS, the strong/weak scaling sweep, <code>perf stat</code>.</p>
+          </div>
+          <div class="lo-card">
+            <span class="ses">Session 5.1</span>
+            <h4>Hybrid computing patterns</h4>
+            <p>The macro-guarded source compiles to a hybrid MPI+OpenMP build with no rewrite.</p>
+          </div>
+          <div class="lo-card">
+            <span class="ses">Session 5.5</span>
+            <h4>Climate / terrestrial modelling</h4>
+            <p>MiniWeather <em>is</em> the climate-systems hybrid-programming case study from this session.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 10 · EXTENSIONS ===================== -->
+    <section id="extensions" class="section section-muted anchor-section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">10 · Extensions</span>
+            <h2>Where to take it next</h2>
+          </div>
+        </div>
+
+        <div class="lo-grid">
+          <div class="lo-card" style="border-left-color: var(--accent-warm)">
+            <h4>Close the multi-GPU TODO</h4>
+            <p style="color:var(--fg-soft)">
+              The CUDA backend already does <code>cudaSetDevice(rank % device_count)</code> but skips the inter-GPU
+              halo. Add a device-to-device exchange each step (stage halos to host, or go GPU-aware) to scale across
+              all GPUs on a node and across nodes.
+            </p>
+          </div>
+          <div class="lo-card" style="border-left-color: var(--accent-cool)">
+            <h4>GPU-aware MPI</h4>
+            <p style="color:var(--fg-soft)">
+              With a CUDA-aware OpenMPI build you can pass <em>device</em> pointers straight to
+              <code>MPI_Isend</code>/<code>Irecv</code>, letting the runtime use NVLink / GPUDirect RDMA and skip
+              the host bounce entirely — the biggest win for the memory-bound halo.
+            </p>
+          </div>
+          <div class="lo-card" style="border-left-color: var(--brand)">
+            <h4>Tune the hybrid balance</h4>
+            <p style="color:var(--fg-soft)">
+              Sweep ranks × threads (e.g. 1×16, 2×8, 4×4) and pin with <code>OMP_PROC_BIND=close</code> +
+              <code>--map-by socket</code>. One rank per NUMA domain usually beats both extremes — section 5.1 made
+              measurable.
+            </p>
+          </div>
+          <div class="lo-card" style="border-left-color: var(--accent)">
+            <h4>2D / 3D decomposition</h4>
+            <p style="color:var(--fg-soft)">
+              The current slab cut is 1D in <code>z</code>. A 2D or 3D <code>MPI_Cart_create</code> topology
+              shrinks the surface-to-volume ratio at high rank counts, directly attacking the strong-scaling
+              roll-off seen in the 16-rank row.
+            </p>
+          </div>
+          <div class="lo-card" style="border-left-color: var(--accent-cool)">
+            <h4>Real physics</h4>
+            <p style="color:var(--fg-soft)">
+              Swap the toy diffusion operator for the actual MiniWeather advection + buoyancy terms (the
+              visualization already adds wind/buoyancy in 2D) to make it a genuine compressible-flow miniapp.
+            </p>
+          </div>
+          <div class="lo-card" style="border-left-color: var(--accent-warm)">
+            <h4>Parallel I/O &amp; checkpointing</h4>
+            <p style="color:var(--fg-soft)">
+              Add MPI-IO or HDF5 to dump fields for visualization and to checkpoint long runs — sessions 3.2 and
+              3.4 — instead of relying on the in-memory constant-field test.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 11 · REFERENCES ===================== -->
+    <section id="refs" class="section anchor-section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">11 · References &amp; links</span>
+            <h2>Source, course, reading</h2>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div>
+            <h3 class="prose">In this repository</h3>
+            <ul class="refs">
+              <li><a href="https://github.com/andreaisabelmontana/hpc-miniweather/tree/main/source/src" target="_blank" rel="noreferrer">source/src/ — the four backends</a> (serial, blocked, parallel, GPU + <code>halo.cpp</code>)</li>
+              <li><a href="https://github.com/andreaisabelmontana/hpc-miniweather/tree/main/source/scripts" target="_blank" rel="noreferrer">source/scripts/ &amp; slurm/</a> — SLURM submit + plotting/visualization helpers</li>
+              <li><a href="https://github.com/andreaisabelmontana/hpc-miniweather/tree/main/source/docs" target="_blank" rel="noreferrer">source/docs/</a> — ARCHITECTURE, RESULTS, SYSTEM, reproduce guide</li>
+              <li><a href="./index.html">Interactive visualization</a> — the live 2D analogue of this kernel</li>
+              <li><a href="./source-overview.html">Source overview</a> — what every directory contains</li>
+              <li><a href="./course.html">Course structure</a> — the full 30-session outline</li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="prose">Background reading</h3>
+            <ul class="refs">
+              <li>Robey &amp; Zamora (2021), <em>Parallel and High Performance Computing</em>, Manning. ISBN 9781617296468 — OpenMP/MPI/GPU and the tsunami-on-GPUs case study.</li>
+              <li>Sterling, Anderson, Brodowicz &amp; Bell (2018), <em>High Performance Computing: Modern Systems and Practices</em>, Morgan Kaufmann. ISBN 9780124201583.</li>
+              <li>Hager &amp; Wellein (2019), <em>Introduction to HPC for Scientists and Engineers</em>, Taylor &amp; Francis. ISBN 9780367221300 — roofline &amp; stencil optimization.</li>
+              <li>Williams, Waterman &amp; Patterson (2009), "Roofline: an insightful visual performance model," <em>CACM</em>.</li>
+              <li>Amdahl (1967) &amp; Gustafson (1988) — the two scaling laws used in section 7.</li>
+              <li>ORNL MiniWeather — the original miniapp this project is modelled on.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== FOOTER ===================== -->
+    <footer class="site-footer">
+      <div class="stripe" aria-hidden="true"></div>
+      <div class="container">
+        <div class="row" style="align-items:flex-start; gap:2rem; flex-wrap:wrap; padding:2.5rem 0 1.5rem">
+          <div style="flex:1; min-width:240px">
+            <strong>HPC MiniWeather — worked example</strong>
+            <p class="muted" style="margin-top:0.5rem">
+              A serial → OpenMP → MPI → CUDA walkthrough with a scaling study, by Andrea Montana for the
+              IE BCSAI High-Performance Computing course. Code excerpts are taken from the real backends in
+              <code>source/src/</code>.
+            </p>
+          </div>
+          <div style="flex:1; min-width:200px">
+            <strong>Navigate</strong>
+            <ul style="list-style:none; padding:0; margin:0.5rem 0 0">
+              <li><a href="./index.html">Interactive visualization</a></li>
+              <li><a href="./course.html">Course structure</a></li>
+              <li><a href="./source-overview.html">Source overview</a></li>
+              <li><a href="./SYLLABUS.pdf" target="_blank" rel="noreferrer">Syllabus (PDF)</a></li>
+            </ul>
+          </div>
+          <div style="flex:1; min-width:200px">
+            <strong>Stack</strong>
+            <ul style="list-style:none; padding:0; margin:0.5rem 0 0; color:var(--muted)">
+              <li>C++ · CMake · MPI · OpenMP · CUDA</li>
+              <li>SLURM / Magic Castle cluster</li>
+              <li>Amdahl · Gustafson · Roofline</li>
+            </ul>
+          </div>
+        </div>
+        <div class="legal">
+          © <span id="yr"></span> IE School of Science &amp; Technology — Class project
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      document.getElementById('yr').textContent = new Date().getFullYear();
+      // Render the scaling-law math once KaTeX has loaded.
+      document.addEventListener('DOMContentLoaded', function () {
+        if (window.renderMathInElement) {
+          renderMathInElement(document.body, {
+            delimiters: [
+              { left: '$$', right: '$$', display: true },
+              { left: '$', right: '$', display: false }
+            ],
+            throwOnError: false
+          });
+        }
+      });
+    </script>
+  </body>
+</html>
